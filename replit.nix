@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.zip
     pkgs.github-cli
     pkgs.postgresql
     pkgs.sqlite

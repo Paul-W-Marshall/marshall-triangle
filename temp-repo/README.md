@@ -1,28 +1,48 @@
 # Marshall Triangle Visualization
 
-A sophisticated Python-based visualization module for rendering the Harmony Index as an interactive, color-blended equilateral triangle.
+A sophisticated Python-based visualization module for rendering the Harmony Index as an interactive, color-blended equilateral triangle that dynamically balances Privacy, Performance, and Personalization metrics.
+
+![Marshall Triangle Overview](docs/images/app_overview.png)
 
 ## Overview
 
-The Marshall Triangle visualizes the balance between three key traits:
-- Privacy (Red)
-- Performance (Green)
-- Personalization (Blue)
+The Marshall Triangle represents a novel visualization approach to triadic balance between key traits:
+- **Privacy (Red)** - Located at the midpoint between top and bottom-right vertices
+- **Performance (Green)** - Located at the midpoint between top and bottom-left vertices
+- **Personalization (Blue)** - Located at the midpoint between bottom-left and bottom-right vertices
 
-## Features
+This geometric arrangement produces secondary colors at vertices:
+- **Yellow** (Privacy + Performance) at the top vertex
+- **Magenta** (Privacy + Personalization) at the bottom-left vertex
+- **Cyan** (Performance + Personalization) at the bottom-right vertex
 
-- Dynamic weighting of traits
-- Triadic Calibration for custom white points
-- Save & Load states and presets
-- Interactive Streamlit UI
+When all traits are balanced, the center of the triangle appears white.
 
-## Technical Details
+## Key Features
 
-- Built with Python, NumPy, Matplotlib, and Streamlit
-- Custom color blending algorithms
-- SQLite for state persistence
+- **Dynamic State Vector**: Adjust the strength of each trait through interactive sliders
+  ![State Vector Controls](docs/images/state_vector_controls.png)
 
-See TECHNICAL.md for more details.
+- **Triadic Calibration**: Set any point as the new "balance point" (white center)
+  ![Triadic Calibration](docs/images/triadic_calibration.png)
+
+- **State Management**: Save and load Marshall States with custom visualization parameters
+
+- **Rendering Options**: Choose between Gaussian and Inverse-Square falloff functions for different blending effects
+
+- **Interactive UI**: User-friendly Streamlit interface with tabbed navigation and custom styling
+
+## Technical Architecture
+
+The project is structured around three core components:
+
+1. **HarmonyIndex Class**: The rendering engine that handles all geometric calculations, color blending, and image generation.
+
+2. **Streamlit Interface**: Provides an interactive web UI for manipulating the visualization parameters and saving/loading states.
+
+3. **Persistence Layer**: Combines SQLite database and file-based storage for reliable state management.
+
+For more detailed technical information, see [docs/TECHNICAL.md](docs/TECHNICAL.md).
 
 ## License
 
