@@ -1,5 +1,7 @@
 {
-  "last_refresh": "2025-04-06T12:00:00Z",
-  "marshall_states": [],
-  "rendering_presets": []
+    "last_refresh": 0,
+    "last_saved_state": null,
+    "last_saved_preset": null,
+    "states": [],
+    "presets": []
 }
