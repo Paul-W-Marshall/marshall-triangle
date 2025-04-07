@@ -1027,22 +1027,30 @@ def main():
                                 f"Ps: {state['target']['b']:.2f}"
                             )
 
-                            # Load and Delete buttons
+                            # Load and Delete buttons side by side using HTML/CSS
                             load_btn_key = f"load_state_{state['name']}"
                             delete_btn_key = f"delete_state_{state['name']}"
 
-                            if st.button("Load", key=load_btn_key):
-                                # Store state in session state
+                            st.markdown(
+                                f"""
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                    <div style="flex: 1;">{st.button("Load", key=load_btn_key)}</div>
+                                    <div style="flex: 1;">{st.button("Delete", key=delete_btn_key)}</div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True
+                            )
+
+                            # Handle button clicks
+                            if st.session_state.get(load_btn_key):
                                 st.session_state.load_state = state['target']
-                                # Force a rerun to update the visualization
                                 st.success(f"Marshall State '{state['name']}' loaded successfully!")
                                 st.rerun()
 
-                            if st.button("Delete", key=delete_btn_key):
+                            if st.session_state.get(delete_btn_key):
                                 delete_marshall_state(state['name'])
                                 st.session_state.preset_deleted = True
                                 st.success(f"Marshall State '{state['name']}' deleted successfully!")
-                                # Force a rerun to refresh the list of states
                                 st.rerun()
         else:
             st.info("No Marshall states saved yet. Create one by setting your preferred state and clicking 'Save Current State'.")
