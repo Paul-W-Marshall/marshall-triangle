@@ -1096,7 +1096,7 @@ def main():
             # Color intensity
             intensity = st.slider("Color Intensity", 
                                  min_value=0.1, 
-                                 max_value=2.0, 
+                                 max_value=5.0, 
                                  value=st.session_state.intensity,
                                  key="intensity",
                                  step=0.1)
