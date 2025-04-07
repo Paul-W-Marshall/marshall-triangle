@@ -817,7 +817,7 @@ def main():
 
         # Update Marshall state
         marshall_state = {
-            ''r': privacy_strength,
+            'r': privacy_strength,
             'g': performance_strength,
             'b': personalization_strength
         }
