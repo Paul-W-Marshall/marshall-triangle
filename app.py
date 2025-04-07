@@ -1268,25 +1268,33 @@ def main():
                                     , unsafe_allow_html=True
                                 )
 
-                                # Load and Delete buttons
-                                load_col, delete_col = st.columns(2)
+                                # Use container for buttons
+                                btn_container = st.container()
+                                load_btn_key = f"load_preset_{preset['name']}"
+                                delete_btn_key = f"delete_preset_{preset['name']}"
 
-                                with load_col:
-                                    load_btn_key = f"load_preset_{preset['name']}"
-                                    if st.button("Load", key=load_btn_key):
-                                        st.session_state.load_rendering_preset = preset['params']
-                                        st.success(f"Preset '{preset['name']}' loaded!")
-                                        # Force a rerun to apply the preset
-                                        st.rerun()
+                                # Use markdown to create side-by-side buttons
+                                btn_container.markdown(
+                                    f"""
+                                    <div style="display: flex; gap: 10px;">
+                                        <div style="flex: 1;">{st.button("Load", key=load_btn_key)}</div>
+                                        <div style="flex: 1;">{st.button("Delete", key=delete_btn_key)}</div>
+                                    </div>
+                                    """,
+                                    unsafe_allow_html=True
+                                )
 
-                                with delete_col:
-                                    delete_btn_key = f"delete_preset_{preset['name']}"
-                                    if st.button("Delete", key=delete_btn_key):
-                                        delete_rendering_preset(preset['name'])
-                                        st.session_state.preset_deleted = True
-                                        st.success(f"Preset '{preset['name']}' deleted successfully!")
-                                        # Force a rerun to refresh the list of presets
-                                        st.rerun()
+                                # Handle button clicks
+                                if st.session_state.get(load_btn_key):
+                                    st.session_state.load_rendering_preset = preset['params']
+                                    st.success(f"Preset '{preset['name']}' loaded!")
+                                    st.rerun()
+
+                                if st.session_state.get(delete_btn_key):
+                                    delete_rendering_preset(preset['name'])
+                                    st.session_state.preset_deleted = True
+                                    st.success(f"Preset '{preset['name']}' deleted successfully!")
+                                    st.rerun()
         else:
             st.info("No rendering presets saved yet. Configure your preferred visual settings and click 'Save Current Settings'.")
 
