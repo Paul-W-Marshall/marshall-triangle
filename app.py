@@ -1027,28 +1027,23 @@ def main():
                                 f"Ps: {state['target']['b']:.2f}"
                             )
                             
-                            # Load and Delete buttons
-                            load_col, delete_col = st.columns(2)
+                            # Load and Delete buttons side by side
+                            load_btn_key = f"load_state_{state['name']}"
+                            delete_btn_key = f"delete_state_{state['name']}"
                             
-                            # Load button
-                            with load_col:
-                                load_btn_key = f"load_state_{state['name']}"
-                                if st.button("Load", key=load_btn_key):
-                                    # Store state in session state
-                                    st.session_state.load_state = state['target']
-                                    # Force a rerun to update the visualization
-                                    st.success(f"Marshall State '{state['name']}' loaded successfully!")
-                                    st.rerun()
-                            
-                            # Delete button
-                            with delete_col:
-                                delete_btn_key = f"delete_state_{state['name']}"
-                                if st.button("Delete", key=delete_btn_key):
-                                    delete_marshall_state(state['name'])
-                                    st.session_state.preset_deleted = True
-                                    st.success(f"Marshall State '{state['name']}' deleted successfully!")
-                                    # Force a rerun to refresh the list of states
-                                    st.rerun()
+                            if st.button("Load", key=load_btn_key):
+                                # Store state in session state
+                                st.session_state.load_state = state['target']
+                                # Force a rerun to update the visualization
+                                st.success(f"Marshall State '{state['name']}' loaded successfully!")
+                                st.rerun()
+                                
+                            if st.button("Delete", key=delete_btn_key):
+                                delete_marshall_state(state['name'])
+                                st.session_state.preset_deleted = True
+                                st.success(f"Marshall State '{state['name']}' deleted successfully!")
+                                # Force a rerun to refresh the list of states
+                                st.rerun()
         else:
             st.info("No Marshall states saved yet. Create one by setting your preferred state and clicking 'Save Current State'.")
         
