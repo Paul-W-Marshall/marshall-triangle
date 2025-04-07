@@ -1089,7 +1089,7 @@ def main():
                                  max_value=0.5, 
                                  value=st.session_state.sigma,
                                  key="sigma",
-                                 step=0.05)
+                                 step=0.01)
             else:
                 sigma = 0.2  # Default value, not used for inverse square
 
