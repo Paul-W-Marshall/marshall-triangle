@@ -1027,13 +1027,15 @@ def main():
                                 f"Ps: {state['target']['b']:.2f}"
                             )
 
-                            # Load and Delete buttons side by side using HTML/CSS
+                            # Load and Delete buttons using container
+                            btn_container = st.container()
                             load_btn_key = f"load_state_{state['name']}"
                             delete_btn_key = f"delete_state_{state['name']}"
 
-                            st.markdown(
+                            # Use HTML/CSS for button layout
+                            btn_container.markdown(
                                 f"""
-                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <div style="display: flex; gap: 10px;">
                                     <div style="flex: 1;">{st.button("Load", key=load_btn_key)}</div>
                                     <div style="flex: 1;">{st.button("Delete", key=delete_btn_key)}</div>
                                 </div>
