@@ -561,17 +561,21 @@ def main():
             # Clear after 5 seconds
             st.session_state.last_refresh_timestamp = None
     
-    st.title("The Marshall Triangle")
+    # Create two columns for the main layout
+    left_col, right_col = st.columns([0.4, 0.6], gap="medium")
     
-    # Initialize database
-    init_db()
-    
-    # Initialize session state variables
-    if 'calibration_success' not in st.session_state:
-        st.session_state.calibration_success = False
-    if 'state_saved' not in st.session_state:
-        st.session_state.state_saved = False
-    if 'rendering_preset_saved' not in st.session_state:
+    with left_col:
+        st.title("The Marshall Triangle")
+        
+        # Initialize database
+        init_db()
+        
+        # Initialize session state variables
+        if 'calibration_success' not in st.session_state:
+            st.session_state.calibration_success = False
+        if 'state_saved' not in st.session_state:
+            st.session_state.state_saved = False
+        if 'rendering_preset_saved' not in st.session_state:
         st.session_state.rendering_preset_saved = False
     if 'preset_deleted' not in st.session_state:
         st.session_state.preset_deleted = False
@@ -588,7 +592,7 @@ def main():
     
     # Initialize session state for rendering parameters if not present
     if 'size' not in st.session_state:
-        st.session_state.size = 1000  # Larger default size as requested
+        st.session_state.size = 500  # Smaller default size for side-by-side layout
     if 'falloff_type' not in st.session_state:
         st.session_state.falloff_type = 'gaussian'
     if 'sigma' not in st.session_state:
@@ -711,12 +715,13 @@ def main():
     if 'active_tab' not in st.session_state:
         st.session_state.active_tab = 0
     
-    # Create tabs for different sections
-    tab1, tab2, tab3 = st.tabs([
-        "📐 Model Framework", 
-        "⚖️ State & Calibration", 
-        "🎨 Visualization Settings"
-    ])
+    with right_col:
+        # Create tabs for different sections
+        tab1, tab2, tab3 = st.tabs([
+            "📐 Model Framework", 
+            "⚖️ State & Calibration", 
+            "🎨 Visualization Settings"
+        ])
     
     # We'll use the session_state active_tab only for tab selection via buttons
     # but won't override it during normal rendering - this allows tab persistence
