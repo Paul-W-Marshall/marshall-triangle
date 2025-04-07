@@ -576,12 +576,11 @@ def main():
         if 'state_saved' not in st.session_state:
             st.session_state.state_saved = False
         if 'rendering_preset_saved' not in st.session_state:
-        st.session_state.rendering_preset_saved = False
-    if 'preset_deleted' not in st.session_state:
-        st.session_state.preset_deleted = False
-        st.session_state.preset_deleted = False
-    if 'load_rendering_preset' not in st.session_state:
-        st.session_state.load_rendering_preset = None
+            st.session_state.rendering_preset_saved = False
+        if 'preset_deleted' not in st.session_state:
+            st.session_state.preset_deleted = False
+        if 'load_rendering_preset' not in st.session_state:
+            st.session_state.load_rendering_preset = None
     if 'load_state' not in st.session_state:
         st.session_state.load_state = None
     if 'reset_rendering' not in st.session_state:
