@@ -561,16 +561,12 @@ def main():
             # Clear after 5 seconds
             st.session_state.last_refresh_timestamp = None
 
-    # Create two columns for the main layout
-    left_col, right_col = st.columns([0.4, 0.6], gap="medium")
+    st.title("The Marshall Triangle")
 
-    with left_col:
-        st.title("The Marshall Triangle")
+    # Initialize database
+    init_db()
 
-        # Initialize database
-        init_db()
-
-        # Initialize session state variables
+    # Initialize session state variables
         if 'calibration_success' not in st.session_state:
             st.session_state.calibration_success = False
         if 'state_saved' not in st.session_state:
@@ -678,38 +674,42 @@ def main():
         st.success("✅ Calibration applied! The visualization now treats your selected state as the balanced reference point.")
         st.session_state.calibration_success = False
 
-    # Main visualization - always visible at the top
-    harmony = HarmonyIndex(
-        size=size, 
-        sigma=sigma, 
-        intensity=intensity,
-        edge_blur=edge_blur, 
-        edge_factor=edge_factor
-    )
+    # Create main layout columns
+    left_col, right_col = st.columns([0.4, 0.6], gap="medium")
 
-    # Apply calibration
-    harmony.set_calibration(calibrated_white_point)
+    with left_col:
+        # Main visualization
+        harmony = HarmonyIndex(
+            size=size, 
+            sigma=sigma, 
+            intensity=intensity,
+            edge_blur=edge_blur, 
+            edge_factor=edge_factor
+        )
 
-    # Determine whether to show labeled or unlabeled version
-    show_labels = st.checkbox("Show Labels", value=st.session_state.show_labeled)
-    st.session_state.show_labeled = show_labels
+        # Apply calibration
+        harmony.set_calibration(calibrated_white_point)
 
-    # Render appropriate version of the triangle
-    if show_labels:
-        fig = harmony.plot_with_labels(harmonyState=marshall_state, falloff_type=falloff_type)
-        st.pyplot(fig)
-    else:
-        img = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
-        st.image(img, caption="Marshall Triangle", use_container_width=True)
+        # Determine whether to show labeled or unlabeled version
+        show_labels = st.checkbox("Show Labels", value=st.session_state.show_labeled)
+        st.session_state.show_labeled = show_labels
 
-    # Simple controls below the image
-    img_bytes = harmony.get_image_bytes(harmonyState=marshall_state, falloff_type=falloff_type)
-    st.download_button(
-        label="Download Image",
-        data=img_bytes,
-        file_name="marshall_triangle.png",
-        mime="image/png"
-    )
+        # Render appropriate version of the triangle
+        if show_labels:
+            fig = harmony.plot_with_labels(harmonyState=marshall_state, falloff_type=falloff_type)
+            st.pyplot(fig)
+        else:
+            img = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
+            st.image(img, caption="Marshall Triangle", use_container_width=True)
+
+        # Simple controls below the image
+        img_bytes = harmony.get_image_bytes(harmonyState=marshall_state, falloff_type=falloff_type)
+        st.download_button(
+            label="Download Image",
+            data=img_bytes,
+            file_name="marshall_triangle.png",
+            mime="image/png"
+        )
 
     # Initialize active tab tracking in session state
     if 'active_tab' not in st.session_state:
