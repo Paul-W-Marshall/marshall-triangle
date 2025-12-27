@@ -1,0 +1,76 @@
+MARSHALL TRIANGLE VISUALIZATION FRAMEWORK
+PUBLIC LICENSE
+
+Copyright (c) 2024 Paul W. Marshall
+All Rights Reserved.
+
+================================================================================
+PROGRAMMABLE IP LICENSE (PIL) NOTICE
+================================================================================
+
+This software and associated documentation files (the "Software") are protected
+under the Programmable IP License (PIL) framework and registered with Story
+Protocol for on-chain intellectual property management.
+
+GRANT OF LICENSE
+----------------
+Subject to the terms and conditions of this License, the copyright holder hereby
+grants you a worldwide, royalty-free, non-exclusive license to:
+
+  1. USE - Execute and run the Software for any purpose
+  2. COPY - Reproduce the Software
+  3. MODIFY - Create derivative works based on the Software
+  4. DISTRIBUTE - Share copies of the Software
+  5. DISPLAY - Publicly display the Software
+  6. PERFORM - Publicly perform the Software
+  7. SUBLICENSE - Grant sublicenses under identical terms
+
+CONDITIONS
+----------
+The above permissions are granted provided that:
+
+  a) ATTRIBUTION - You must give appropriate credit, provide a link to this
+     license, and indicate if changes were made. You may do so in any
+     reasonable manner, but not in any way that suggests the licensor
+     endorses you or your use.
+
+  b) LICENSE NOTICE - You must include a copy of this license in any
+     distribution of the Software or substantial portions thereof.
+
+  c) STATE CHANGES - If you modify the Software, you must indicate that
+     you have made modifications and include a summary of the changes.
+
+RESTRICTIONS
+------------
+This license explicitly DOES NOT grant:
+
+  a) AI TRAINING RIGHTS - The Software may not be used to train machine
+     learning models, artificial intelligence systems, or similar
+     technologies without explicit written permission.
+
+  b) TRADEMARK RIGHTS - This license does not grant permission to use the
+     trade names, trademarks, service marks, or product names of the
+     licensor.
+
+  c) PATENT RIGHTS - This license does not grant any patent licenses.
+
+ON-CHAIN REGISTRATION
+--------------------
+This intellectual property is registered with Story Protocol on the Base
+network. License verification, royalty distribution, and derivative tracking
+are managed on-chain. See PIL_METADATA.yaml for registration details.
+
+DISCLAIMER
+----------
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+For licensing inquiries: https://github.com/Fidelitas-llc/marshall-triangle-visualization
+Story Protocol Registration: Pending
+================================================================================
