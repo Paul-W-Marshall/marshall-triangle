@@ -90,22 +90,32 @@ def custom_slider_css():
 # Adaptive sigma calculation for state vector imbalance
 def calculate_imbalance_score(r: float, g: float, b: float) -> float:
     """
-    Calculate how imbalanced the state vector is.
-    Returns 0 for balanced (0.5, 0.5, 0.5), increases toward 1 for extreme imbalance.
+    Calculate how imbalanced the state vector is using normalized standard deviation.
+    Returns 0 for perfectly balanced states, increases toward 1 for extreme imbalance.
+    
+    Uses barycentric normalization (sum to 1) then calculates standard deviation.
+    Maximum possible std dev for (1,0,0) normalized is ~0.471, so we normalize by that.
     """
-    values = [r, g, b]
-    max_val = max(values)
-    min_val = min(values)
+    # Normalize to barycentric coordinates (sum to 1)
+    total = r + g + b
+    if total == 0:
+        return 0.0
     
-    # Calculate the spread - maximum possible is 1.0 (one at 1.0, others at 0.0)
-    spread = max_val - min_val
+    r_norm = r / total
+    g_norm = g / total
+    b_norm = b / total
     
-    # Also consider how far from balanced center (0.5) the dominant value is
-    center_deviation = abs(max_val - 0.5) + abs(min_val - 0.5)
+    # Calculate standard deviation of normalized values
+    mean = (r_norm + g_norm + b_norm) / 3.0  # Always 1/3 for normalized values
+    variance = ((r_norm - mean)**2 + (g_norm - mean)**2 + (b_norm - mean)**2) / 3.0
+    std_dev = variance ** 0.5
     
-    # Combine both factors for imbalance score (normalized to 0-1)
-    imbalance = (spread * 0.6 + center_deviation * 0.4)
-    return min(1.0, imbalance)
+    # Maximum std dev occurs at (1, 0, 0) -> normalized (1, 0, 0) -> std_dev ≈ 0.471
+    max_std_dev = 0.471
+    
+    # Normalize to 0-1 range
+    imbalance = min(1.0, std_dev / max_std_dev)
+    return imbalance
 
 def calculate_adaptive_sigma(base_sigma: float, r: float, g: float, b: float) -> tuple:
     """
@@ -118,16 +128,19 @@ def calculate_adaptive_sigma(base_sigma: float, r: float, g: float, b: float) ->
     """
     imbalance = calculate_imbalance_score(r, g, b)
     
-    # Threshold for when compensation kicks in
-    compensation_threshold = 0.25  # Start compensating when imbalance > 25%
+    # Threshold for when compensation kicks in (15% imbalance)
+    # This ensures balanced states (0.5, 0.5, 0.5 = 0%) don't trigger warnings
+    # but moderate states (0.75, 0.40, 0.40 = 22%) do get compensation
+    compensation_threshold = 0.15
     
     if imbalance <= compensation_threshold:
         return (base_sigma, imbalance, False)
     
     # Calculate minimum sigma needed for this imbalance level
-    # Linear interpolation: required sigma increases from 0.25 toward 0.40 as imbalance increases
+    # Linear interpolation: required sigma increases from 0.25 toward 0.48 as imbalance increases
+    # 0.48 ensures corners remain intact even at extreme imbalance
     min_sigma_for_imbalance = 0.25
-    max_sigma_for_imbalance = 0.40
+    max_sigma_for_imbalance = 0.48
     compensation_factor = (imbalance - compensation_threshold) / (1.0 - compensation_threshold)
     required_sigma = min_sigma_for_imbalance + (max_sigma_for_imbalance - min_sigma_for_imbalance) * compensation_factor
     
