@@ -588,17 +588,17 @@ def main():
 
     # Initialize session state for rendering parameters if not present
     if 'size' not in st.session_state:
-        st.session_state.size = 500  # Smaller default size for side-by-side layout
+        st.session_state.size = 1000
     if 'falloff_type' not in st.session_state:
         st.session_state.falloff_type = 'gaussian'
     if 'sigma' not in st.session_state:
-        st.session_state.sigma = 0.25
+        st.session_state.sigma = 0.30
     if 'intensity' not in st.session_state:
-        st.session_state.intensity = 1.0
+        st.session_state.intensity = 2.0
     if 'edge_blur' not in st.session_state:
-        st.session_state.edge_blur = 0.5
+        st.session_state.edge_blur = 0.60
     if 'edge_factor' not in st.session_state:
-        st.session_state.edge_factor = 0.5
+        st.session_state.edge_factor = 0.40
 
     # Initialize session state for Marshall state vector if not present
     if 'privacy_strength' not in st.session_state:
@@ -614,12 +614,12 @@ def main():
     # Handle preset loading and resets
     if st.session_state.reset_rendering:
         # Reset rendering parameters to default
-        st.session_state.size = 1000  # Updated to 1000px per requirements
+        st.session_state.size = 1000
         st.session_state.falloff_type = 'gaussian'
-        st.session_state.sigma = 0.25
-        st.session_state.intensity = 1.0
-        st.session_state.edge_blur = 0.5
-        st.session_state.edge_factor = 0.5
+        st.session_state.sigma = 0.30
+        st.session_state.intensity = 2.0
+        st.session_state.edge_blur = 0.60
+        st.session_state.edge_factor = 0.40
         # Clear the flag
         st.session_state.reset_rendering = False
 
@@ -627,13 +627,13 @@ def main():
         # Get the preset params
         params = st.session_state.load_rendering_preset
         # Update session state with preset values
-        st.session_state.size = params.get('size', 500)
+        st.session_state.size = params.get('size', 1000)
         st.session_state.falloff_type = params.get('falloff_type', 'gaussian')
         if params.get('falloff_type', 'gaussian') == 'gaussian':
-            st.session_state.sigma = params.get('sigma', 0.25)
-        st.session_state.intensity = params.get('intensity', 1.0)
-        st.session_state.edge_blur = params.get('edge_blur', 0.5)
-        st.session_state.edge_factor = params.get('edge_factor', 0.5)
+            st.session_state.sigma = params.get('sigma', 0.30)
+        st.session_state.intensity = params.get('intensity', 2.0)
+        st.session_state.edge_blur = params.get('edge_blur', 0.60)
+        st.session_state.edge_factor = params.get('edge_factor', 0.40)
         # Clear the loaded preset
         st.session_state.load_rendering_preset = None
 
