@@ -501,7 +501,7 @@ def get_image_base64(harmony_renderer=None, params=None, harmony_state=None, siz
         # Create a small renderer with the given parameters
         small_renderer = HarmonyIndex(
             size=size,
-            sigma=params.get('sigma', 0.4),
+            sigma=params.get('sigma', 0.25),
             intensity=params.get('intensity', 1.2),
             edge_blur=params.get('edge_blur', 0.5),
             edge_factor=params.get('edge_factor', 0.5)
@@ -700,7 +700,7 @@ def main():
             st.pyplot(fig)
         else:
             img = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
-            st.image(img, caption="Marshall Triangle", use_container_width=True)
+            st.image(img, caption="Marshall Triangle", width="stretch")
 
         # Simple controls below the image
         img_bytes = harmony.get_image_bytes(harmonyState=marshall_state, falloff_type=falloff_type)
@@ -989,7 +989,7 @@ def main():
         marshall_states = get_marshall_states()
 
         # Debug info
-        st.write(f"Number of Marshall states found: {len(marshall_states)} (fetch timestamp: {fetch_timestamp})")
+        st.write(f"Number of Marshall states found: {len(marshall_states)}")
 
         if marshall_states:
             # Display all saved states in a grid
@@ -1027,29 +1027,16 @@ def main():
                                 f"Ps: {state['target']['b']:.2f}"
                             )
 
-                            # Load and Delete buttons using container
-                            btn_container = st.container()
+                            # Load and Delete buttons
                             load_btn_key = f"load_state_{state['name']}"
                             delete_btn_key = f"delete_state_{state['name']}"
 
-                            # Use HTML/CSS for button layout
-                            btn_container.markdown(
-                                f"""
-                                <div style="display: flex; gap: 10px;">
-                                    <div style="flex: 1;">{st.button("Load", key=load_btn_key)}</div>
-                                    <div style="flex: 1;">{st.button("Delete", key=delete_btn_key)}</div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
-
-                            # Handle button clicks
-                            if st.session_state.get(load_btn_key):
+                            if st.button("Load", key=load_btn_key):
                                 st.session_state.load_state = state['target']
                                 st.success(f"Marshall State '{state['name']}' loaded successfully!")
                                 st.rerun()
 
-                            if st.session_state.get(delete_btn_key):
+                            if st.button("Delete", key=delete_btn_key):
                                 delete_marshall_state(state['name'])
                                 st.session_state.preset_deleted = True
                                 st.success(f"Marshall State '{state['name']}' deleted successfully!")
@@ -1227,7 +1214,7 @@ def main():
         presets = get_rendering_presets()
 
         # Debug info
-        st.write(f"Number of rendering presets found: {len(presets)} (fetch timestamp: {presets_fetch_timestamp})")
+        st.write(f"Number of rendering presets found: {len(presets)}")
 
         if presets:
             # Display all presets in a grid
@@ -1268,29 +1255,16 @@ def main():
                                     , unsafe_allow_html=True
                                 )
 
-                                # Use container for buttons
-                                btn_container = st.container()
+                                # Load and Delete buttons
                                 load_btn_key = f"load_preset_{preset['name']}"
                                 delete_btn_key = f"delete_preset_{preset['name']}"
 
-                                # Use markdown to create side-by-side buttons
-                                btn_container.markdown(
-                                    f"""
-                                    <div style="display: flex; gap: 10px;">
-                                        <div style="flex: 1;">{st.button("Load", key=load_btn_key)}</div>
-                                        <div style="flex: 1;">{st.button("Delete", key=delete_btn_key)}</div>
-                                    </div>
-                                    """,
-                                    unsafe_allow_html=True
-                                )
-
-                                # Handle button clicks
-                                if st.session_state.get(load_btn_key):
+                                if st.button("Load", key=load_btn_key):
                                     st.session_state.load_rendering_preset = preset['params']
                                     st.success(f"Preset '{preset['name']}' loaded!")
                                     st.rerun()
 
-                                if st.session_state.get(delete_btn_key):
+                                if st.button("Delete", key=delete_btn_key):
                                     delete_rendering_preset(preset['name'])
                                     st.session_state.preset_deleted = True
                                     st.success(f"Preset '{preset['name']}' deleted successfully!")
