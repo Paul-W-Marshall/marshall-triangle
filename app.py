@@ -137,12 +137,14 @@ def calculate_adaptive_sigma(base_sigma: float, r: float, g: float, b: float) ->
         return (base_sigma, imbalance, False)
     
     # Calculate minimum sigma needed for this imbalance level
-    # Linear interpolation: required sigma increases from 0.30 toward 0.48 as imbalance increases
-    # 0.48 ensures corners remain intact even at extreme imbalance
-    min_sigma_for_imbalance = 0.30
+    # When compensation kicks in, use a minimum of 0.35 to ensure corner integrity
+    # Then scale up toward 0.48 for extreme imbalance
+    min_compensated_sigma = 0.35  # Minimum sigma when any compensation is needed
     max_sigma_for_imbalance = 0.48
+    
+    # Scale from min_compensated_sigma to max based on how far above threshold
     compensation_factor = (imbalance - compensation_threshold) / (1.0 - compensation_threshold)
-    required_sigma = min_sigma_for_imbalance + (max_sigma_for_imbalance - min_sigma_for_imbalance) * compensation_factor
+    required_sigma = min_compensated_sigma + (max_sigma_for_imbalance - min_compensated_sigma) * compensation_factor
     
     # Never reduce sigma below what the user set - only expand if needed
     if base_sigma >= required_sigma:
@@ -758,9 +760,45 @@ def main():
         st.success("✅ Calibration applied! The visualization now treats your selected state as the balanced reference point.")
         st.session_state.calibration_success = False
 
-    # Display imbalance warning if compensation is active
+    # Display imbalance warning if compensation is active (dismissable, auto-fades after 30s)
     if is_compensating:
-        st.warning(f"⚠️ Imbalanced state detected ({imbalance_score:.0%}). Sigma auto-adjusted from {base_sigma:.2f} to {sigma:.2f} to preserve triangle integrity. Color definition may be reduced at extreme settings.")
+        warning_id = f"warning_{int(time.time() * 1000)}"
+        st.markdown(f"""
+        <style>
+        .dismissable-warning {{
+            background-color: rgba(255, 193, 7, 0.15);
+            border: 1px solid rgba(255, 193, 7, 0.4);
+            border-radius: 0.5rem;
+            padding: 1rem 2.5rem 1rem 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+            animation: fadeOut 30s forwards;
+        }}
+        .dismissable-warning .close-btn {{
+            position: absolute;
+            top: 0.5rem;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: rgba(255, 193, 7, 0.8);
+            line-height: 1;
+        }}
+        .dismissable-warning .close-btn:hover {{
+            color: rgba(255, 193, 7, 1);
+        }}
+        @keyframes fadeOut {{
+            0% {{ opacity: 1; }}
+            90% {{ opacity: 1; }}
+            100% {{ opacity: 0; visibility: hidden; }}
+        }}
+        </style>
+        <div class="dismissable-warning" id="{warning_id}">
+            <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+            <span style="color: #ffc107;">&#9888;</span> Imbalanced state detected ({imbalance_score:.0%}). Sigma auto-adjusted from {base_sigma:.2f} to {sigma:.2f} to preserve triangle integrity. Color definition may be reduced at extreme settings.
+        </div>
+        """, unsafe_allow_html=True)
 
     # Create main layout columns
     left_col, right_col = st.columns([0.4, 0.6], gap="medium")
