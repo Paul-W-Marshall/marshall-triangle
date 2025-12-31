@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.vim
     pkgs.zip
     pkgs.github-cli
     pkgs.postgresql

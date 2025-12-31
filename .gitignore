@@ -1,37 +1,15 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Distribution / packaging
-dist/
-build/
-*.egg-info/
-
-# Virtual environments
-venv/
-env/
-ENV/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Local development
-.env
-.venv
-.idea/
-.vscode/
-
-# OS specific
-.DS_Store
-Thumbs.db
-
+# dependencies
 node_modules
-.next
-.out
-.vercel
+/.next
+/.vercel
+
+# python
+__pycache__/
+*.pyc
+*.db
+
+# streamlit
+.streamlit/
+
+# misc
 .DS_Store
-*.log
-figures/out
-coverage
-dist
