@@ -1,3 +1,14 @@
+# ==============================================================================
+# Marshall Triangle Visualization - HarmonyIndex Rendering Engine
+# Copyright (c) 2024 Paul W. Marshall. All Rights Reserved.
+#
+# Licensed under the Programmable IP License (PIL).
+# See LICENSE-PUBLIC.txt and PIL_METADATA.yaml for terms.
+#
+# This software is registered with Story Protocol for on-chain IP management.
+# AI training use is prohibited without explicit written permission.
+# ==============================================================================
+
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt

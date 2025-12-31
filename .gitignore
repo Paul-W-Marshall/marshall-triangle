@@ -25,3 +25,13 @@ ENV/
 # OS specific
 .DS_Store
 Thumbs.db
+
+node_modules
+.next
+.out
+.vercel
+.DS_Store
+*.log
+figures/out
+coverage
+dist
