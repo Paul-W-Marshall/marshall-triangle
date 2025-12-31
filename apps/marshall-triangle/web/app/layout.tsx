@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Harmony Triangle',
+  title: 'Marshall Triangle',
   description: 'Interactive visualization of triadic balance between Privacy, Performance, and Personalization',
 }
 

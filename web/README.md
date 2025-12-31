@@ -1,5 +1,5 @@
 
-# Harmony Triangle Web App
+# Marshall Triangle Web App
 
 Production-ready Next.js 14 TypeScript application for the Marshall Triangle visualization.
 
