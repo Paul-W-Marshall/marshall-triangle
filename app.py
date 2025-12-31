@@ -700,7 +700,7 @@ def main():
             st.pyplot(fig)
         else:
             img = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
-            st.image(img, caption="Marshall Triangle", use_container_width=True)
+            st.image(img, caption="Marshall Triangle", width='stretch')
 
         # Simple controls below the image
         img_bytes = harmony.get_image_bytes(harmonyState=marshall_state, falloff_type=falloff_type)
