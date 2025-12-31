@@ -18,7 +18,7 @@ The Marshall Triangle positions three competing concerns at edge midpoints of an
 - **Performance (Green)** — System speed and efficiency  
 - **Personalization (Blue)** — Tailored user experiences
 
-Secondary relationships emerge at vertices through additive color mixing, while perfect balance manifests as white light at the geometric center. The visualization uses Gaussian falloff (canonical σ = 0.25) for smooth gradient transitions.
+Secondary relationships emerge at vertices through additive color mixing, while perfect balance manifests as white light at the geometric center. The visualization uses Gaussian falloff (canonical σ = 0.30) for smooth gradient transitions.
 
 ## Licensing
 

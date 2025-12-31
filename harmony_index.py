@@ -10,10 +10,10 @@ from typing import Dict, Optional
 # triadic balance between Privacy (Red), Performance (Green), and Personalization (Blue)
 #
 # Canonical Parameters:
-# - sigma: 0.25 (optimal Gaussian falloff for balanced color blending)
-# - Valid range: 0.1-0.6 (0.25 is canonical for publication)
+# - sigma: 0.30 (optimal Gaussian falloff for balanced color blending)
+# - Valid range: 0.1-0.6 (0.30 is canonical for publication)
 class HarmonyIndex:
-    def __init__(self, size=500, sigma=0.25, intensity=1.2, edge_blur=0.5, edge_factor=0.5):
+    def __init__(self, size=500, sigma=0.30, intensity=1.2, edge_blur=0.5, edge_factor=0.5):
         self.size = size
         self.sigma = sigma
         self.intensity = intensity

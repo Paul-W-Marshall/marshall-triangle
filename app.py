@@ -122,7 +122,7 @@ def calculate_adaptive_sigma(base_sigma: float, r: float, g: float, b: float) ->
     Calculate adaptive sigma based on state vector imbalance.
     Returns (adjusted_sigma, imbalance_score, is_compensating)
     
-    Base sigma (0.25) works well for balanced states.
+    Base sigma (0.30) works well for balanced states.
     For imbalanced states, we increase sigma to prevent corner cutoff.
     Never reduces sigma below user-set value.
     """
@@ -137,9 +137,9 @@ def calculate_adaptive_sigma(base_sigma: float, r: float, g: float, b: float) ->
         return (base_sigma, imbalance, False)
     
     # Calculate minimum sigma needed for this imbalance level
-    # Linear interpolation: required sigma increases from 0.25 toward 0.48 as imbalance increases
+    # Linear interpolation: required sigma increases from 0.30 toward 0.48 as imbalance increases
     # 0.48 ensures corners remain intact even at extreme imbalance
-    min_sigma_for_imbalance = 0.25
+    min_sigma_for_imbalance = 0.30
     max_sigma_for_imbalance = 0.48
     compensation_factor = (imbalance - compensation_threshold) / (1.0 - compensation_threshold)
     required_sigma = min_sigma_for_imbalance + (max_sigma_for_imbalance - min_sigma_for_imbalance) * compensation_factor
@@ -563,7 +563,7 @@ def get_image_base64(harmony_renderer=None, params=None, harmony_state=None, siz
             harmony_state = {'r': 1.0, 'g': 1.0, 'b': 1.0}
 
         # Get base sigma from params
-        base_sigma = params.get('sigma', 0.25)
+        base_sigma = params.get('sigma', 0.30)
         
         # Calculate adaptive sigma based on state vector for icon previews too
         r = harmony_state.get('r', 1.0)
@@ -665,7 +665,7 @@ def main():
     if 'falloff_type' not in st.session_state:
         st.session_state.falloff_type = 'gaussian'
     if 'sigma' not in st.session_state:
-        st.session_state.sigma = 0.25
+        st.session_state.sigma = 0.30
     if 'intensity' not in st.session_state:
         st.session_state.intensity = 1.0
     if 'edge_blur' not in st.session_state:
@@ -689,7 +689,7 @@ def main():
         # Reset rendering parameters to default
         st.session_state.size = 1000  # Updated to 1000px per requirements
         st.session_state.falloff_type = 'gaussian'
-        st.session_state.sigma = 0.25
+        st.session_state.sigma = 0.30
         st.session_state.intensity = 1.0
         st.session_state.edge_blur = 0.5
         st.session_state.edge_factor = 0.5
@@ -703,7 +703,7 @@ def main():
         st.session_state.size = params.get('size', 500)
         st.session_state.falloff_type = params.get('falloff_type', 'gaussian')
         if params.get('falloff_type', 'gaussian') == 'gaussian':
-            st.session_state.sigma = params.get('sigma', 0.25)
+            st.session_state.sigma = params.get('sigma', 0.30)
         st.session_state.intensity = params.get('intensity', 1.0)
         st.session_state.edge_blur = params.get('edge_blur', 0.5)
         st.session_state.edge_factor = params.get('edge_factor', 0.5)
@@ -1337,7 +1337,7 @@ def main():
                                     f"Size: {preset['params'].get('size', 500)}<br/>"
                                     f"Falloff: {preset['params'].get('falloff_type', 'gaussian')}<br/>"
                                     f"Intensity: {preset['params'].get('intensity', 1.0)}<br/>"
-                                    f"{'Sigma: ' + str(preset['params'].get('sigma', 0.25)) if preset['params'].get('falloff_type', 'gaussian') == 'gaussian' else ''}<br/>"
+                                    f"{'Sigma: ' + str(preset['params'].get('sigma', 0.30)) if preset['params'].get('falloff_type', 'gaussian') == 'gaussian' else ''}<br/>"
                                     f"Edge Blur: {preset['params'].get('edge_blur', 0.5)}<br/>"
                                     f"Edge Factor: {preset['params'].get('edge_factor', 0.5)}"
                                     , unsafe_allow_html=True
