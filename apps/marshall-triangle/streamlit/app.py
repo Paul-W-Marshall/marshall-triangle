@@ -255,8 +255,8 @@ def get_marshall_states():
         conn = sqlite3.connect('harmony_presets.db')
         cursor = conn.cursor()
 
-        # Query with unique fetch ID in comment to prevent caching
-        cursor.execute(f"SELECT name, icon_params, r_target, g_target, b_target FROM marshall_states /* direct_fetch_{fetch_timestamp} */")
+        # Query marshall states
+        cursor.execute("SELECT name, icon_params, r_target, g_target, b_target FROM marshall_states")
         rows = cursor.fetchall()
 
         # Process results
@@ -411,8 +411,8 @@ def get_rendering_presets():
         conn = sqlite3.connect('harmony_presets.db')
         cursor = conn.cursor()
 
-        # Query with unique fetch ID in comment to prevent caching
-        cursor.execute(f"SELECT name, params FROM rendering_presets /* direct_fetch_{fetch_timestamp} */")
+        # Query rendering presets
+        cursor.execute("SELECT name, params FROM rendering_presets")
         rows = cursor.fetchall()
 
         # Process results
@@ -982,10 +982,10 @@ def main():
         # Generate a unique key based on time to prevent caching
         fetch_timestamp = time.time()
 
-        # Force query the database directly each time with a unique comment to avoid caching
+        # Query database directly
         conn = sqlite3.connect('harmony_presets.db')
         cursor = conn.cursor()
-        cursor.execute(f"SELECT name FROM marshall_states /* direct_query_{fetch_timestamp} */")
+        cursor.execute("SELECT name FROM marshall_states")
         db_states = [row[0] for row in cursor.fetchall()]
         conn.close()
 
@@ -1220,10 +1220,10 @@ def main():
         # Generate a unique key based on time to prevent caching
         presets_fetch_timestamp = time.time()
 
-        # Force query the database directly each time with a unique comment to avoid caching
+        # Query database directly
         conn = sqlite3.connect('harmony_presets.db')
         cursor = conn.cursor()
-        cursor.execute(f"SELECT name FROM rendering_presets /* direct_query_{presets_fetch_timestamp} */")
+        cursor.execute("SELECT name FROM rendering_presets")
         db_presets = [row[0] for row in cursor.fetchall()]
         conn.close()
 
