@@ -87,6 +87,57 @@ def custom_slider_css():
     </style>
     """
 
+# Adaptive sigma calculation for state vector imbalance
+def calculate_imbalance_score(r: float, g: float, b: float) -> float:
+    """
+    Calculate how imbalanced the state vector is.
+    Returns 0 for balanced (0.5, 0.5, 0.5), increases toward 1 for extreme imbalance.
+    """
+    values = [r, g, b]
+    max_val = max(values)
+    min_val = min(values)
+    
+    # Calculate the spread - maximum possible is 1.0 (one at 1.0, others at 0.0)
+    spread = max_val - min_val
+    
+    # Also consider how far from balanced center (0.5) the dominant value is
+    center_deviation = abs(max_val - 0.5) + abs(min_val - 0.5)
+    
+    # Combine both factors for imbalance score (normalized to 0-1)
+    imbalance = (spread * 0.6 + center_deviation * 0.4)
+    return min(1.0, imbalance)
+
+def calculate_adaptive_sigma(base_sigma: float, r: float, g: float, b: float) -> tuple:
+    """
+    Calculate adaptive sigma based on state vector imbalance.
+    Returns (adjusted_sigma, imbalance_score, is_compensating)
+    
+    Base sigma (0.25) works well for balanced states.
+    For imbalanced states, we increase sigma to prevent corner cutoff.
+    Never reduces sigma below user-set value.
+    """
+    imbalance = calculate_imbalance_score(r, g, b)
+    
+    # Threshold for when compensation kicks in
+    compensation_threshold = 0.25  # Start compensating when imbalance > 25%
+    
+    if imbalance <= compensation_threshold:
+        return (base_sigma, imbalance, False)
+    
+    # Calculate minimum sigma needed for this imbalance level
+    # Linear interpolation: required sigma increases from 0.25 toward 0.40 as imbalance increases
+    min_sigma_for_imbalance = 0.25
+    max_sigma_for_imbalance = 0.40
+    compensation_factor = (imbalance - compensation_threshold) / (1.0 - compensation_threshold)
+    required_sigma = min_sigma_for_imbalance + (max_sigma_for_imbalance - min_sigma_for_imbalance) * compensation_factor
+    
+    # Never reduce sigma below what the user set - only expand if needed
+    if base_sigma >= required_sigma:
+        # User already set a safe sigma, no compensation needed
+        return (base_sigma, imbalance, False)
+    
+    return (required_sigma, imbalance, True)
+
 # Database setup and management functions
 def init_db():
     """Initialize the database with necessary tables if they don't exist"""
@@ -498,10 +549,19 @@ def get_image_base64(harmony_renderer=None, params=None, harmony_state=None, siz
         if harmony_state is None:
             harmony_state = {'r': 1.0, 'g': 1.0, 'b': 1.0}
 
-        # Create a small renderer with the given parameters
+        # Get base sigma from params
+        base_sigma = params.get('sigma', 0.25)
+        
+        # Calculate adaptive sigma based on state vector for icon previews too
+        r = harmony_state.get('r', 1.0)
+        g = harmony_state.get('g', 1.0)
+        b = harmony_state.get('b', 1.0)
+        adaptive_sigma, _, _ = calculate_adaptive_sigma(base_sigma, r, g, b)
+
+        # Create a small renderer with the given parameters (using adaptive sigma)
         small_renderer = HarmonyIndex(
             size=size,
-            sigma=params.get('sigma', 0.25),
+            sigma=adaptive_sigma,
             intensity=params.get('intensity', 1.2),
             edge_blur=params.get('edge_blur', 0.5),
             edge_factor=params.get('edge_factor', 0.5)
@@ -663,16 +723,31 @@ def main():
 
     # Get rendering parameters
     size = st.session_state.size
-    sigma = st.session_state.sigma
+    base_sigma = st.session_state.sigma
     intensity = st.session_state.intensity
     edge_blur = st.session_state.edge_blur
     edge_factor = st.session_state.edge_factor
     falloff_type = st.session_state.falloff_type
 
+    # Calculate adaptive sigma based on state vector imbalance
+    adaptive_sigma, imbalance_score, is_compensating = calculate_adaptive_sigma(
+        base_sigma,
+        marshall_state['r'],
+        marshall_state['g'],
+        marshall_state['b']
+    )
+    
+    # Use adaptive sigma for rendering
+    sigma = adaptive_sigma
+
     # Display calibration status if just applied
     if st.session_state.calibration_success:
         st.success("✅ Calibration applied! The visualization now treats your selected state as the balanced reference point.")
         st.session_state.calibration_success = False
+
+    # Display imbalance warning if compensation is active
+    if is_compensating:
+        st.warning(f"⚠️ Imbalanced state detected ({imbalance_score:.0%}). Sigma auto-adjusted from {base_sigma:.2f} to {sigma:.2f} to preserve triangle integrity. Color definition may be reduced at extreme settings.")
 
     # Create main layout columns
     left_col, right_col = st.columns([0.4, 0.6], gap="medium")
