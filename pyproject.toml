@@ -4,10 +4,14 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
+    "h11>=0.16.0",
     "matplotlib>=3.10.1",
     "numpy>=2.2.4",
     "openai>=1.68.2",
-    "pillow>=11.1.0",
+    "pillow>=10.4.0",
+    "protobuf>=5.30.0",
     "scipy>=1.15.2",
     "streamlit>=1.44.0",
+    "tornado>=6.5.0",
+    "urllib3>=2.4.0",
 ]
