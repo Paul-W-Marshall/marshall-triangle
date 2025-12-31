@@ -128,11 +128,10 @@ def calculate_adaptive_sigma(base_sigma: float, r: float, g: float, b: float) ->
     """
     imbalance = calculate_imbalance_score(r, g, b)
     
-    # Threshold for when compensation kicks in (30% imbalance)
+    # Threshold for when compensation kicks in (20% imbalance)
     # This ensures balanced states (0.5, 0.5, 0.5 = 0%) don't trigger warnings
-    # and moderate presets (0.75, 0.40, 0.40 = 22%) render correctly at sigma=0.30
-    # Only extreme states (>30% imbalance) will trigger auto-compensation
-    compensation_threshold = 0.30
+    # Moderate presets (0.75, 0.40, 0.40 = 22.5%) will get compensation to prevent corner cutoff
+    compensation_threshold = 0.20
     
     if imbalance <= compensation_threshold:
         return (base_sigma, imbalance, False)
