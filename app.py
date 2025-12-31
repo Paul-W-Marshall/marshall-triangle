@@ -544,7 +544,7 @@ def main():
 
     st.set_page_config(
         page_title="Marshall Triangle Visualization",
-        page_icon="🔺",
+        page_icon=".streamlit/favicon.png",
         layout=st.session_state.layout_preference
     )
 
