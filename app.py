@@ -1185,7 +1185,6 @@ def main():
             size = st.slider("Image Size (pixels)", 
                              min_value=500, 
                              max_value=2000, 
-                             value=st.session_state.size,
                              key="size",
                              step=100)
 
@@ -1200,7 +1199,6 @@ def main():
                 sigma = st.slider("Sigma (Gaussian falloff)", 
                                  min_value=0.05, 
                                  max_value=0.5, 
-                                 value=st.session_state.sigma,
                                  key="sigma",
                                  step=0.01)
             else:
@@ -1210,7 +1208,6 @@ def main():
             intensity = st.slider("Color Intensity", 
                                  min_value=0.1, 
                                  max_value=5.0, 
-                                 value=st.session_state.intensity,
                                  key="intensity",
                                  step=0.1)
 
@@ -1221,7 +1218,6 @@ def main():
             edge_blur = st.slider("Edge Blur Radius", 
                                 min_value=0.0, 
                                 max_value=2.0, 
-                                value=st.session_state.edge_blur,
                                 key="edge_blur",
                                 step=0.1,
                                 help="The radius of Gaussian blur applied to smooth edges")
@@ -1230,7 +1226,6 @@ def main():
             edge_factor = st.slider("Edge Intensity Factor", 
                                     min_value=0.0, 
                                     max_value=1.0, 
-                                    value=st.session_state.edge_factor,
                                     key="edge_factor",
                                     step=0.1,
                                     help="Intensity factor applied to edge pixels (0=transparent, 1=full opacity)")
