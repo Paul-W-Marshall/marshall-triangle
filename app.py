@@ -1,3 +1,20 @@
+"""
+Marshall Triangle Visualization Application
+
+Author: Paul W. Marshall
+Entity: Fidelitas LLC – Series 1
+Year: 2026
+
+License Summary:
+- Source code: MIT License (see LICENSE-MIT)
+- Generated figures/visual outputs: CC BY-NC 4.0 (see LICENSE-CC-BY-NC-4.0)
+- Conceptual framework (Marshall Triangle, sovereign perceptual geometry): 
+  All Rights Reserved, governed via Story Protocol
+  Minted asset: marshall_triangle-v1-sovereign
+
+Repository: https://github.com/Paul-W-Marshall/marshall-triangle
+"""
+
 import streamlit as st
 import numpy as np
 from harmony_index import HarmonyIndex
@@ -1392,6 +1409,19 @@ def main():
                                     st.rerun()
         else:
             st.info("No rendering presets saved yet. Configure your preferred visual settings and click 'Save Current Settings'.")
+
+    # Attribution Footer
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; color: #888; font-size: 0.85em; padding: 1rem 0;">
+        <strong>Marshall Triangle</strong><br/>
+        &copy; 2026 Fidelitas LLC – Series 1 | Author: Paul W. Marshall<br/>
+        <a href="https://github.com/Paul-W-Marshall/marshall-triangle" target="_blank" style="color: #888;">GitHub Repository</a><br/>
+        <span style="font-size: 0.8em;">
+            Code: MIT | Figures: CC BY-NC 4.0 | Conceptual Framework: All Rights Reserved
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
