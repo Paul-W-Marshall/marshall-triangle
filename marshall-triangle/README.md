@@ -1,104 +1,94 @@
-# Harmony Triangle
+# Marshall Triangle
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Vercel](https://vercelbadge.vercel.app/api/Paul-W-Marshall/harmony-triangle)](https://vercel.com/)
-<!-- Add more badges as needed (e.g., arXiv, DOI, build status) -->
+[![License: MIT](https://img.shields.io/badge/Code-MIT-yellow.svg)](./LICENSE-MIT)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/Figures-CC%20BY--NC%204.0-lightgrey.svg)](./LICENSE-CC-BY-NC-4.0)
 
 ## Overview
 
-**Harmony Triangle** is a reference implementation and interactive visualization of a novel color space design system, building on James Clerk Maxwell’s 1874 color triangle. This repository provides both a production-ready Next.js 14 + WebGL web app and a TypeScript toolchain for generating publication-quality figures.
+**Marshall Triangle** is a computational framework and interactive visualization system for exploring triadic equilibrium through perceptual color geometry. It provides tools for calibrating and rendering balanced force relationships using additive color theory.
 
-Developed alongside the forthcoming arXiv paper, which details the theoretical and historical foundations of the Harmony Triangle.
+This repository serves as the canonical technical reference for the Marshall Triangle system.
 
 ---
 
-## Features
+## Architecture
 
-- **Interactive barycentric triangle renderer**
-- **sRGB / Display-P3 space toggle** (with live badge)
-- **Draggable probe** showing barycentric weights, hex color, and copy-to-JSON
-- **PNG export** (color-managed, space-aware)
-- **TypeScript toolchain** (`/figures`) for generating publication-quality PNGs and CSV data
-- **Shared color-math utilities** and JSON-configured anchors
+| Component | Domain | Role |
+|-----------|--------|------|
+| **Static Site** | [marshalltriangle.com](https://marshalltriangle.com) | Documentation, theory, governance |
+| **Application** | [marshalltriangle.app](https://marshalltriangle.app) | Interactive computational tool |
+| **Repository** | This repo | Canonical source code |
+| **IP Declaration** | Story Protocol | Conceptual framework registration |
+
+---
+
+## Licensing (Tri-Layer Model)
+
+This project uses a formal tri-layer licensing structure:
+
+| Layer | Applies To | License |
+|-------|------------|---------|
+| **Code** | `app.py`, `harmony_index.py`, tooling | [MIT](./LICENSE-MIT) |
+| **Figures & Visual Outputs** | Generated images, exports | [CC BY-NC 4.0](./LICENSE-CC-BY-NC-4.0) |
+| **Conceptual Framework** | Marshall Triangle concept, declaration | All Rights Reserved (via Story Protocol) |
+
+### License Summary
+
+- **Code** is open source under MIT — free to use, modify, and distribute with attribution.
+- **Visual outputs** may be shared non-commercially with attribution under CC BY-NC 4.0.
+- **The conceptual framework** (Marshall Triangle as an epistemic construct) is a sovereign declaration registered via Story Protocol and is not licensed for derivative conceptual works.
+
+---
+
+## Files
+
+| File | Description |
+|------|-------------|
+| `app.py` | Streamlit application entry point |
+| `harmony_index.py` | Core HarmonyIndex computation module |
+| `LICENSE-MIT` | MIT License for code |
+| `LICENSE-CC-BY-NC-4.0` | CC BY-NC 4.0 License for figures |
 
 ---
 
 ## Quick Start
 
-### 1. Clone and Install
-
 ```bash
-git clone https://github.com/Paul-W-Marshall/harmony-triangle.git
-cd harmony-triangle/web
-npm install
-```
-
-### 2. Run the Web App
-
-```bash
-npm run dev
-```
-Visit [http://localhost:3000](http://localhost:3000) in your browser.
-
-### 3. Generate Figures
-
-```bash
-cd ../figures
-npm install
-npm run build && npm run generate
+pip install streamlit numpy
+streamlit run app.py
 ```
 
 ---
 
-## Deployment
+## Citation
 
-This project is pre-configured for [Vercel](https://vercel.com/) deployment.
-
-- **Root Directory:** `/web`
-- **Build Command:** `npm run build`
-- **Output Directory:** `.next`
-
----
-
-## Provenance and Citations
-
-- Public repository for reproducibility and scholarly citation.
-- Full commit history preserved.
-- Original private archival repository referenced in the paper's Appendix/Provenance section.
-- Based on James Clerk Maxwell’s 1874 color triangle ([Maxwell, J.C., "On the Theory of Compound Colours," 1860](https://doi.org/10.1098/rstl.1860.0005)).
-- Please cite the associated arXiv paper (link forthcoming).
-
-<details>
-<summary><strong>How to Cite</strong></summary>
-
-When citing this project, please use the following format (update when arXiv DOI is available):
-
-```
-@software{marshall_harmonytriangle,
+```bibtex
+@software{marshall_triangle_2026,
   author = {Paul Warrington Marshall},
-  title = {Harmony Triangle: Reference Implementation and Visualization},
-  year = {2024},
-  url = {https://github.com/Paul-W-Marshall/harmony-triangle},
-  note = {arXiv preprint forthcoming}
+  title = {Marshall Triangle: Triadic Equilibrium Visualization System},
+  year = {2026},
+  url = {https://github.com/Paul-W-Marshall/marshall-triangle},
+  note = {Canonical reference implementation}
 }
 ```
-</details>
 
 ---
 
-## License
+## Provenance
 
-- **Code:** [MIT](./LICENSE)
-- **Paper:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
-- **Figures:** [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
-
-See LICENSE files in root and subdirectories for details.
+- **Inventor:** Paul Warrington Marshall
+- **Original Implementation:** March 2025
+- **Canonical Name:** Marshall Triangle
+- **Underlying System Concept:** Harmony Index (internal/historical)
+- **Story Protocol Asset:** marshall_triangle-v1-sovereign
 
 ---
 
-## Contributing
+## Related Resources
 
-Contributions are welcome! Please open an issue or pull request for suggestions, improvements, or bug reports.
+- [marshalltriangle.com](https://marshalltriangle.com) — Documentation and theory
+- [marshalltriangle.app](https://marshalltriangle.app) — Interactive application
+- Story Protocol — Conceptual IP declaration
 
 ---
 
@@ -108,16 +98,4 @@ For questions or academic inquiries, please contact [Paul Warrington Marshall](h
 
 ---
 
-## Acknowledgements
-
-Credit to James Clerk Maxwell for the foundational work on color triangles.
-
----
-
-<!--
-Optionally, add screenshots or GIFs here, e.g.:
-
-## Screenshots
-
-![Screenshot of Harmony Triangle Web App](./web/public/screenshot.png)
--->
+**Copyright 2026 Fidelitas LLC — Series 1. All rights reserved for conceptual framework. Code and figures licensed as stated above.**
