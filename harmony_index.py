@@ -1,3 +1,20 @@
+"""
+Marshall Triangle Rendering Engine (HarmonyIndex)
+
+Author: Paul W. Marshall
+Entity: Fidelitas LLC – Series 1
+Year: 2026
+
+License Summary:
+- Source code: MIT License (see LICENSE-MIT)
+- Generated figures/visual outputs: CC BY-NC 4.0 (see LICENSE-CC-BY-NC-4.0)
+- Conceptual framework (Marshall Triangle, sovereign perceptual geometry): 
+  All Rights Reserved, governed via Story Protocol
+  Minted asset: marshall_triangle-v1-sovereign
+
+Repository: https://github.com/Paul-W-Marshall/marshall-triangle
+"""
+
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
