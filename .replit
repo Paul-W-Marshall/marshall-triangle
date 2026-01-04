@@ -1,2 +1,26 @@
+modules = ["python-3.11"]
 [agent]
 expertMode = true
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Shell"
+
+[[workflows.workflow]]
+name = "Shell"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"Marshall Triangle Build Environment Ready - Python 3.11\" && python3 --version"
+
+[workflows.workflow.metadata]
+outputType = "console"
