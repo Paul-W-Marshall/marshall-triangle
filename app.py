@@ -310,6 +310,10 @@ def main():
         st.session_state.reset_rendering = False
     if 'show_labeled' not in st.session_state:
         st.session_state.show_labeled = False
+    if 'label_expanded' not in st.session_state:
+        st.session_state.label_expanded = True
+    if 'prev_show_labeled' not in st.session_state:
+        st.session_state.prev_show_labeled = False
 
     # Initialize session state for rendering parameters if not present
     if 'size' not in st.session_state:
@@ -408,34 +412,43 @@ def main():
 
     harmony.set_calibration(calibrated_white_point)
 
-    col1, col2 = st.columns([3, 2])
-
-    with col1:
-        show_labeled = st.checkbox("Show Labels", value=st.session_state.show_labeled, key="show_labeled")
+    # Check for show_labeled transition (False -> True) to reset expansion state
+    show_labeled = st.checkbox("Show Labels", value=st.session_state.show_labeled, key="show_labeled")
+    
+    # When show_labeled is newly checked, expand the diagram by default
+    if show_labeled and not st.session_state.prev_show_labeled:
+        st.session_state.label_expanded = True
+    st.session_state.prev_show_labeled = show_labeled
+    
+    # Determine layout based on show_labeled and label_expanded states
+    if show_labeled and st.session_state.label_expanded:
+        # Full-width expanded mode for labeled diagram
+        fig = harmony.plot_with_labels(harmonyState=marshall_state, falloff_type=falloff_type)
+        st.pyplot(fig)
+        plt.close(fig)
         
-        if show_labeled:
-            fig = harmony.plot_with_labels(harmonyState=marshall_state, falloff_type=falloff_type)
-            st.pyplot(fig)
-            plt.close(fig)
-        else:
-            img = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
-            st.image(img, width="stretch")
-
-    with col2:
-        st.subheader("Current Marshall State")
-        st.markdown(f"""
-        - **Privacy (Red)**: {marshall_state['r']:.2f}
-        - **Performance (Green)**: {marshall_state['g']:.2f}
-        - **Personalization (Blue)**: {marshall_state['b']:.2f}
-        """)
+        # Toggle button to collapse
+        if st.button("Collapse Diagram", key="collapse_labeled"):
+            st.session_state.label_expanded = False
+            st.rerun()
         
-        st.subheader("White Point Calibration")
-        st.markdown(f"""
-        - Privacy: {calibrated_white_point['r']:.2f}
-        - Performance: {calibrated_white_point['g']:.2f}
-        - Personalization: {calibrated_white_point['b']:.2f}
-        """)
-
+        # State info below in columns
+        col1, col2 = st.columns(2)
+        with col1:
+            st.subheader("Current Marshall State")
+            st.markdown(f"""
+            - **Privacy (Red)**: {marshall_state['r']:.2f}
+            - **Performance (Green)**: {marshall_state['g']:.2f}
+            - **Personalization (Blue)**: {marshall_state['b']:.2f}
+            """)
+        with col2:
+            st.subheader("White Point Calibration")
+            st.markdown(f"""
+            - Privacy: {calibrated_white_point['r']:.2f}
+            - Performance: {calibrated_white_point['g']:.2f}
+            - Personalization: {calibrated_white_point['b']:.2f}
+            """)
+        
         buf = io.BytesIO()
         img_export = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
         img_export.save(buf, format='PNG')
@@ -445,6 +458,48 @@ def main():
             file_name=f"marshall_triangle_{int(time.time())}.png",
             mime="image/png"
         )
+    else:
+        # Side-by-side column layout (collapsed labeled or unlabeled)
+        col1, col2 = st.columns([3, 2])
+
+        with col1:
+            if show_labeled:
+                fig = harmony.plot_with_labels(harmonyState=marshall_state, falloff_type=falloff_type)
+                st.pyplot(fig)
+                plt.close(fig)
+                
+                # Toggle button to expand
+                if st.button("Expand Diagram", key="expand_labeled"):
+                    st.session_state.label_expanded = True
+                    st.rerun()
+            else:
+                img = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
+                st.image(img, width="stretch")
+
+        with col2:
+            st.subheader("Current Marshall State")
+            st.markdown(f"""
+            - **Privacy (Red)**: {marshall_state['r']:.2f}
+            - **Performance (Green)**: {marshall_state['g']:.2f}
+            - **Personalization (Blue)**: {marshall_state['b']:.2f}
+            """)
+            
+            st.subheader("White Point Calibration")
+            st.markdown(f"""
+            - Privacy: {calibrated_white_point['r']:.2f}
+            - Performance: {calibrated_white_point['g']:.2f}
+            - Personalization: {calibrated_white_point['b']:.2f}
+            """)
+
+            buf = io.BytesIO()
+            img_export = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
+            img_export.save(buf, format='PNG')
+            st.download_button(
+                label="Download Marshall Triangle",
+                data=buf.getvalue(),
+                file_name=f"marshall_triangle_{int(time.time())}.png",
+                mime="image/png"
+            )
 
     # Tab selection with persistence using radio buttons styled as tabs
     tab_names = ["About the Marshall Triangle", "State & Calibration", "Visualization Settings"]
