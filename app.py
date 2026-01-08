@@ -25,50 +25,41 @@ import base64
 import time
 from typing import Dict, Optional, List, Any
 
-# Custom CSS for styling sliders
-def custom_slider_css():
+def custom_css():
+    """Custom CSS for sliders and loading animation replacement"""
     return """
     <style>
     /* Custom slider styles for the State & Calibration tab */
 
     /* Privacy (Red) slider */
-    /* Slider track for Privacy */
     div[data-testid="stSlider"]:has(div[aria-valuetext*="privacy_strength"]) div[data-baseweb="slider"] div {
         background-color: #ff5555 !important;
     }
-    /* Slider label and value for Privacy */
     div[data-testid="stSlider"]:has(div[aria-valuetext*="privacy_strength"]) {
         color: #ff5555 !important;
     }
-    /* Slider value text for Privacy */
     div[data-testid="stSlider"]:has(div[aria-valuetext*="privacy_strength"]) div {
         color: #ff5555 !important;
     }
 
     /* Performance (Green) slider */
-    /* Slider track for Performance */
     div[data-testid="stSlider"]:has(div[aria-valuetext*="performance_strength"]) div[data-baseweb="slider"] div {
         background-color: #55ff55 !important;
     }
-    /* Slider label and value for Performance */
     div[data-testid="stSlider"]:has(div[aria-valuetext*="performance_strength"]) {
         color: #55ff55 !important;
     }
-    /* Slider value text for Performance */
     div[data-testid="stSlider"]:has(div[aria-valuetext*="performance_strength"]) div {
         color: #55ff55 !important;
     }
 
     /* Personalization (Blue) slider */
-    /* Slider track for Personalization */
     div[data-testid="stSlider"]:has(div[aria-valuetext*="personalization_strength"]) div[data-baseweb="slider"] div {
         background-color: #5555ff !important;
     }
-    /* Slider label and value for Personalization */
     div[data-testid="stSlider"]:has(div[aria-valuetext*="personalization_strength"]) {
         color: #5555ff !important;
     }
-    /* Slider value text for Personalization */
     div[data-testid="stSlider"]:has(div[aria-valuetext*="personalization_strength"]) div {
         color: #5555ff !important;
     }
@@ -82,15 +73,88 @@ def custom_slider_css():
     div[data-testid="stSlider"] div[data-baseweb="thumb"] div {
         background-color: currentColor !important;
     }
+
+    /* Custom loading animation - Replace sports theme with geometric pulse */
+    /* Hide the default running status animation */
+    [data-testid="stStatusWidget"] > div:first-child > div:first-child {
+        display: none !important;
+    }
+    
+    /* Custom geometric triangle pulse animation */
+    [data-testid="stStatusWidget"]::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 8px;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 14px solid;
+        animation: trianglePulse 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes trianglePulse {
+        0%, 100% {
+            border-bottom-color: #ff5555;
+            opacity: 0.6;
+            transform: translateY(-50%) scale(0.9);
+        }
+        33% {
+            border-bottom-color: #55ff55;
+            opacity: 1;
+            transform: translateY(-50%) scale(1.1);
+        }
+        66% {
+            border-bottom-color: #5555ff;
+            opacity: 0.8;
+            transform: translateY(-50%) scale(1);
+        }
+    }
+    
+    /* Harmony rings animation for loading state */
+    [data-testid="stSpinner"] > div {
+        display: none !important;
+    }
+    
+    [data-testid="stSpinner"]::after {
+        content: "";
+        display: block;
+        width: 40px;
+        height: 40px;
+        margin: 10px auto;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        border-top-color: #ff5555;
+        border-right-color: #55ff55;
+        border-bottom-color: #5555ff;
+        animation: harmonyRings 1s linear infinite;
+    }
+    
+    @keyframes harmonyRings {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    
+    /* Tab styling for better UX */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        padding: 10px 20px;
+        border-radius: 4px 4px 0 0;
+    }
     </style>
     """
 
-# Adaptive sigma calculation for state vector imbalance
 def calculate_imbalance_score(r: float, g: float, b: float) -> float:
-    """
-    Calculate how imbalanced the state vector is using normalized standard deviation.
-    Returns 0 for perfectly balanced states, increases toward 1 for extreme imbalance.
-    """
+    """Calculate how imbalanced the state vector is using normalized standard deviation."""
     total = r + g + b
     if total == 0:
         return 0.0
@@ -108,10 +172,7 @@ def calculate_imbalance_score(r: float, g: float, b: float) -> float:
     return imbalance
 
 def calculate_adaptive_sigma(base_sigma: float, r: float, g: float, b: float) -> tuple:
-    """
-    Calculate adaptive sigma based on state vector imbalance.
-    Returns (adjusted_sigma, imbalance_score, is_compensating)
-    """
+    """Calculate adaptive sigma based on state vector imbalance."""
     imbalance = calculate_imbalance_score(r, g, b)
     compensation_threshold = 0.20
     
@@ -129,7 +190,6 @@ def calculate_adaptive_sigma(base_sigma: float, r: float, g: float, b: float) ->
     
     return (required_sigma, imbalance, True)
 
-# Session-based state management (ephemeral - no persistence)
 def get_calibration() -> Dict[str, float]:
     """Get calibration from session state (ephemeral)"""
     if "calibration" not in st.session_state:
@@ -147,15 +207,16 @@ def get_marshall_states() -> List[Dict]:
         st.session_state["marshall_states"] = {}
     return list(st.session_state["marshall_states"].values())
 
-def save_marshall_state(name: str, icon_params: Dict, r_target: float, g_target: float, b_target: float) -> bool:
-    """Save a Marshall state to session state (ephemeral)"""
+def save_marshall_state(name: str, icon_params: Dict, r_target: float, g_target: float, b_target: float, thumbnail_base64: Optional[str] = None) -> bool:
+    """Save a Marshall state to session state with thumbnail (ephemeral)"""
     if "marshall_states" not in st.session_state:
         st.session_state["marshall_states"] = {}
     
     st.session_state["marshall_states"][name] = {
         'name': name,
         'icon_params': icon_params,
-        'target': {'r': r_target, 'g': g_target, 'b': b_target}
+        'target': {'r': r_target, 'g': g_target, 'b': b_target},
+        'thumbnail': thumbnail_base64
     }
     return True
 
@@ -170,14 +231,17 @@ def get_rendering_presets() -> List[Dict]:
     """Get all rendering presets from session state (ephemeral)"""
     if "rendering_presets" not in st.session_state:
         st.session_state["rendering_presets"] = {}
-    return [{'name': name, 'params': params} for name, params in st.session_state["rendering_presets"].items()]
+    return [{'name': name, 'data': data} for name, data in st.session_state["rendering_presets"].items()]
 
-def save_rendering_preset(name: str, params: Dict) -> bool:
-    """Save a rendering preset to session state (ephemeral)"""
+def save_rendering_preset(name: str, params: Dict, thumbnail_base64: Optional[str] = None) -> bool:
+    """Save a rendering preset to session state with thumbnail (ephemeral)"""
     if "rendering_presets" not in st.session_state:
         st.session_state["rendering_presets"] = {}
     
-    st.session_state["rendering_presets"][name] = params
+    st.session_state["rendering_presets"][name] = {
+        'params': params,
+        'thumbnail': thumbnail_base64
+    }
     return True
 
 def delete_rendering_preset(name: str) -> bool:
@@ -187,23 +251,16 @@ def delete_rendering_preset(name: str) -> bool:
         return True
     return False
 
-def get_image_base64(harmony_renderer=None, params=None, harmony_state=None, size=100):
-    """Generate a base64 encoded image for display in HTML"""
+def generate_thumbnail(harmony_state: Dict, params: Dict, calibrated_white_point: Dict, size: int = 100) -> Optional[str]:
+    """Generate a thumbnail of the current rendering as base64"""
     try:
-        if params is None:
-            params = {}
-
-        if harmony_state is None:
-            harmony_state = {'r': 1.0, 'g': 1.0, 'b': 1.0}
-
         base_sigma = params.get('sigma', 0.30)
-        
         r = harmony_state.get('r', 1.0)
         g = harmony_state.get('g', 1.0)
         b = harmony_state.get('b', 1.0)
         adaptive_sigma, _, _ = calculate_adaptive_sigma(base_sigma, r, g, b)
 
-        small_renderer = HarmonyIndex(
+        renderer = HarmonyIndex(
             size=size,
             sigma=adaptive_sigma,
             intensity=params.get('intensity', 1.2),
@@ -211,17 +268,15 @@ def get_image_base64(harmony_renderer=None, params=None, harmony_state=None, siz
             edge_factor=params.get('edge_factor', 0.5)
         )
 
-        if params and 'calibrated_white_point' in params:
-            small_renderer.set_calibration(params['calibrated_white_point'])
+        renderer.set_calibration(calibrated_white_point)
 
-        img_bytes = small_renderer.get_image_bytes(
+        img_bytes = renderer.get_image_bytes(
             harmonyState=harmony_state,
             falloff_type=params.get('falloff_type', 'gaussian')
         )
 
         return base64.b64encode(img_bytes).decode('utf-8')
     except Exception as e:
-        st.error(f"Error generating icon: {e}")
         return None
 
 def main():
@@ -234,7 +289,7 @@ def main():
         layout=st.session_state.layout_preference
     )
 
-    st.markdown(custom_slider_css(), unsafe_allow_html=True)
+    st.markdown(custom_css(), unsafe_allow_html=True)
 
     st.title("The Marshall Triangle")
 
@@ -278,7 +333,6 @@ def main():
     if 'personalization_strength' not in st.session_state:
         st.session_state.personalization_strength = 1.0
 
-    # Get ephemeral calibration from session state
     calibrated_white_point = get_calibration()
 
     # Handle preset loading and resets
@@ -392,15 +446,33 @@ def main():
             mime="image/png"
         )
 
-    # Tabs
-    tab1, tab2, tab3 = st.tabs([
-        "About the Marshall Triangle", 
-        "State & Calibration", 
-        "Visualization Settings"
-    ])
+    # Tab selection with persistence using radio buttons styled as tabs
+    tab_names = ["About the Marshall Triangle", "State & Calibration", "Visualization Settings"]
+    
+    # Initialize active tab if not present or if it's an old format (int)
+    if 'active_tab' not in st.session_state or st.session_state.active_tab not in tab_names:
+        st.session_state.active_tab = tab_names[0]
+    
+    # Get current tab index for the radio button
+    current_tab_index = tab_names.index(st.session_state.active_tab)
+    
+    # Use radio button for tab selection (persists across reruns)
+    selected_tab = st.radio(
+        "Navigation",
+        tab_names,
+        index=current_tab_index,
+        horizontal=True,
+        key="tab_selector",
+        label_visibility="collapsed"
+    )
+    
+    # Update session state with current selection
+    st.session_state.active_tab = selected_tab
+    
+    st.markdown("---")
 
     # Tab 1: About
-    with tab1:
+    if selected_tab == "About the Marshall Triangle":
         st.header("About the Marshall Triangle")
         
         st.subheader("The Triadic Framework")
@@ -425,7 +497,7 @@ def main():
         """)
 
     # Tab 2: State & Calibration
-    with tab2:
+    elif selected_tab == "State & Calibration":
         st.header("Marshall State & Calibration")
 
         st.subheader("State Vector")
@@ -495,21 +567,22 @@ def main():
 
         if st.button("Save Current State", key="save_marshall_state_btn"):
             if state_name:
-                icon_params = {
+                current_params = {
                     'size': 100,
                     'sigma': sigma,
                     'intensity': intensity,
                     'edge_blur': edge_blur,
                     'edge_factor': edge_factor,
                     'falloff_type': falloff_type,
-                    'calibrated_white_point': calibrated_white_point
                 }
+                thumbnail = generate_thumbnail(marshall_state, current_params, calibrated_white_point, size=100)
                 save_marshall_state(
                     state_name, 
-                    icon_params, 
+                    current_params, 
                     marshall_state['r'], 
                     marshall_state['g'], 
-                    marshall_state['b']
+                    marshall_state['b'],
+                    thumbnail
                 )
                 st.success(f"Marshall State '{state_name}' saved to this session!")
                 st.rerun()
@@ -530,39 +603,33 @@ def main():
 
                 for i, state in enumerate(row):
                     with cols[i]:
-                        icon_base64 = get_image_base64(
-                            None,
-                            state['icon_params'],
-                            harmony_state={'r': state['target']['r'], 
-                                          'g': state['target']['g'], 
-                                          'b': state['target']['b']},
-                            size=100
-                        )
-
-                        if icon_base64:
+                        thumbnail = state.get('thumbnail')
+                        if thumbnail:
                             st.markdown(
-                                f"<div style='text-align: center;'><img src='data:image/png;base64,{icon_base64}' width='100px'/><br/><b>{state['name']}</b></div>", 
+                                f"<div style='text-align: center;'><img src='data:image/png;base64,{thumbnail}' width='100px'/><br/><b>{state['name']}</b></div>", 
                                 unsafe_allow_html=True
                             )
+                        else:
+                            st.markdown(f"<div style='text-align: center;'><b>{state['name']}</b></div>", unsafe_allow_html=True)
 
-                            st.markdown(
-                                f"Pr: {state['target']['r']:.2f}, "
-                                f"Pf: {state['target']['g']:.2f}, "
-                                f"Ps: {state['target']['b']:.2f}"
-                            )
+                        st.markdown(
+                            f"Pr: {state['target']['r']:.2f}, "
+                            f"Pf: {state['target']['g']:.2f}, "
+                            f"Ps: {state['target']['b']:.2f}"
+                        )
 
-                            if st.button("Load", key=f"load_state_{state['name']}"):
-                                st.session_state.load_state = state['target']
-                                st.rerun()
+                        if st.button("Load", key=f"load_state_{state['name']}"):
+                            st.session_state.load_state = state['target']
+                            st.rerun()
 
-                            if st.button("Delete", key=f"delete_state_{state['name']}"):
-                                delete_marshall_state(state['name'])
-                                st.rerun()
+                        if st.button("Delete", key=f"delete_state_{state['name']}"):
+                            delete_marshall_state(state['name'])
+                            st.rerun()
         else:
             st.info("No Marshall states saved yet. Create one by setting your preferred state and clicking 'Save Current State'.")
 
     # Tab 3: Visualization Settings
-    with tab3:
+    elif selected_tab == "Visualization Settings":
         st.header("Visualization Settings")
 
         col1, col2 = st.columns([2, 1])
@@ -626,7 +693,8 @@ def main():
                         'edge_blur': edge_blur,
                         'edge_factor': edge_factor
                     }
-                    save_rendering_preset(preset_name, params)
+                    thumbnail = generate_thumbnail(marshall_state, params, calibrated_white_point, size=100)
+                    save_rendering_preset(preset_name, params, thumbnail)
                     st.success(f"Rendering preset '{preset_name}' saved to this session!")
                     st.rerun()
                 else:
@@ -650,33 +718,31 @@ def main():
                 for i, preset in enumerate(row):
                     if i < len(row):
                         with cols[i]:
-                            icon_base64 = get_image_base64(
-                                None, 
-                                preset['params'], 
-                                marshall_state, 
-                                size=100
-                            )
-
-                            if icon_base64:
+                            thumbnail = preset['data'].get('thumbnail')
+                            params = preset['data'].get('params', {})
+                            
+                            if thumbnail:
                                 st.markdown(
-                                    f"<div style='text-align: center;'><img src='data:image/png;base64,{icon_base64}' width='100px'/><br/><b>{preset['name']}</b></div>", 
+                                    f"<div style='text-align: center;'><img src='data:image/png;base64,{thumbnail}' width='100px'/><br/><b>{preset['name']}</b></div>", 
                                     unsafe_allow_html=True
                                 )
+                            else:
+                                st.markdown(f"<div style='text-align: center;'><b>{preset['name']}</b></div>", unsafe_allow_html=True)
 
-                                st.markdown(
-                                    f"Size: {preset['params'].get('size', 500)}<br/>"
-                                    f"Falloff: {preset['params'].get('falloff_type', 'gaussian')}<br/>"
-                                    f"Intensity: {preset['params'].get('intensity', 1.0)}"
-                                    , unsafe_allow_html=True
-                                )
+                            st.markdown(
+                                f"Size: {params.get('size', 500)}<br/>"
+                                f"Falloff: {params.get('falloff_type', 'gaussian')}<br/>"
+                                f"Intensity: {params.get('intensity', 1.0)}"
+                                , unsafe_allow_html=True
+                            )
 
-                                if st.button("Load", key=f"load_preset_{preset['name']}"):
-                                    st.session_state.load_rendering_preset = preset['params']
-                                    st.rerun()
+                            if st.button("Load", key=f"load_preset_{preset['name']}"):
+                                st.session_state.load_rendering_preset = params
+                                st.rerun()
 
-                                if st.button("Delete", key=f"delete_preset_{preset['name']}"):
-                                    delete_rendering_preset(preset['name'])
-                                    st.rerun()
+                            if st.button("Delete", key=f"delete_preset_{preset['name']}"):
+                                delete_rendering_preset(preset['name'])
+                                st.rerun()
         else:
             st.info("No rendering presets saved yet. Configure your preferred visual settings and click 'Save Current Settings'.")
 
