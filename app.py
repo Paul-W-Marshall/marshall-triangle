@@ -420,6 +420,34 @@ def main():
         st.session_state.label_expanded = True
     st.session_state.prev_show_labeled = show_labeled
     
+    # Helper function to render the Render Settings Summary card
+    def render_settings_summary():
+        """Display a unified summary of all current render settings"""
+        with st.container():
+            st.markdown("#### Render Settings Summary")
+            st.markdown(f"""
+**State Vector:**
+- Privacy (Red): `{st.session_state.privacy_strength:.2f}`
+- Performance (Green): `{st.session_state.performance_strength:.2f}`
+- Personalization (Blue): `{st.session_state.personalization_strength:.2f}`
+
+**White Point Calibration:**
+- Privacy: `{calibrated_white_point['r']:.2f}`
+- Performance: `{calibrated_white_point['g']:.2f}`
+- Personalization: `{calibrated_white_point['b']:.2f}`
+
+**Rendering Parameters:**
+- Size: `{st.session_state.size}px`
+- Falloff: `{st.session_state.falloff_type}`
+- Sigma: `{st.session_state.sigma:.2f}`
+- Intensity: `{st.session_state.intensity:.1f}`
+- Edge Blur: `{st.session_state.edge_blur:.1f}`
+- Edge Factor: `{st.session_state.edge_factor:.1f}`
+            """)
+            
+            if is_compensating:
+                st.caption(f"Adaptive sigma: {base_sigma:.2f} → {sigma:.2f}")
+
     # Determine layout based on show_labeled and label_expanded states
     if show_labeled and st.session_state.label_expanded:
         # Full-width expanded mode for labeled diagram
@@ -432,22 +460,8 @@ def main():
             st.session_state.label_expanded = False
             st.rerun()
         
-        # State info below in columns
-        col1, col2 = st.columns(2)
-        with col1:
-            st.subheader("Current Marshall State")
-            st.markdown(f"""
-            - **Privacy (Red)**: {marshall_state['r']:.2f}
-            - **Performance (Green)**: {marshall_state['g']:.2f}
-            - **Personalization (Blue)**: {marshall_state['b']:.2f}
-            """)
-        with col2:
-            st.subheader("White Point Calibration")
-            st.markdown(f"""
-            - Privacy: {calibrated_white_point['r']:.2f}
-            - Performance: {calibrated_white_point['g']:.2f}
-            - Personalization: {calibrated_white_point['b']:.2f}
-            """)
+        # Unified Render Settings Summary below diagram
+        render_settings_summary()
         
         buf = io.BytesIO()
         img_export = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
@@ -477,19 +491,7 @@ def main():
                 st.image(img, width="stretch")
 
         with col2:
-            st.subheader("Current Marshall State")
-            st.markdown(f"""
-            - **Privacy (Red)**: {marshall_state['r']:.2f}
-            - **Performance (Green)**: {marshall_state['g']:.2f}
-            - **Personalization (Blue)**: {marshall_state['b']:.2f}
-            """)
-            
-            st.subheader("White Point Calibration")
-            st.markdown(f"""
-            - Privacy: {calibrated_white_point['r']:.2f}
-            - Performance: {calibrated_white_point['g']:.2f}
-            - Personalization: {calibrated_white_point['b']:.2f}
-            """)
+            render_settings_summary()
 
             buf = io.BytesIO()
             img_export = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
@@ -559,7 +561,7 @@ def main():
         st.markdown("Adjust the strength of each concern to explore the triadic balance:")
 
         privacy_strength = st.slider(
-            "Privacy (Red)", 
+            f"Privacy (Red): {st.session_state.privacy_strength:.2f}", 
             min_value=0.0, 
             max_value=1.0,
             key="privacy_strength",
@@ -567,7 +569,7 @@ def main():
         )
 
         performance_strength = st.slider(
-            "Performance (Green)", 
+            f"Performance (Green): {st.session_state.performance_strength:.2f}", 
             min_value=0.0, 
             max_value=1.0,
             key="performance_strength",
@@ -575,7 +577,7 @@ def main():
         )
 
         personalization_strength = st.slider(
-            "Personalization (Blue)", 
+            f"Personalization (Blue): {st.session_state.personalization_strength:.2f}", 
             min_value=0.0, 
             max_value=1.0,
             key="personalization_strength",
@@ -622,21 +624,28 @@ def main():
 
         if st.button("Save Current State", key="save_marshall_state_btn"):
             if state_name:
+                # Read all params directly from st.session_state for source of truth
                 current_params = {
-                    'size': 100,
-                    'sigma': sigma,
-                    'intensity': intensity,
-                    'edge_blur': edge_blur,
-                    'edge_factor': edge_factor,
-                    'falloff_type': falloff_type,
+                    'size': st.session_state.size,
+                    'sigma': st.session_state.sigma,
+                    'intensity': st.session_state.intensity,
+                    'edge_blur': st.session_state.edge_blur,
+                    'edge_factor': st.session_state.edge_factor,
+                    'falloff_type': st.session_state.falloff_type,
                 }
-                thumbnail = generate_thumbnail(marshall_state, current_params, calibrated_white_point, size=100)
+                # State vector from session state
+                state_to_save = {
+                    'r': st.session_state.privacy_strength,
+                    'g': st.session_state.performance_strength,
+                    'b': st.session_state.personalization_strength
+                }
+                thumbnail = generate_thumbnail(state_to_save, current_params, calibrated_white_point, size=100)
                 save_marshall_state(
                     state_name, 
                     current_params, 
-                    marshall_state['r'], 
-                    marshall_state['g'], 
-                    marshall_state['b'],
+                    state_to_save['r'], 
+                    state_to_save['g'], 
+                    state_to_save['b'],
                     thumbnail
                 )
                 st.success(f"Marshall State '{state_name}' saved to this session!")
@@ -667,11 +676,13 @@ def main():
                         else:
                             st.markdown(f"<div style='text-align: center;'><b>{state['name']}</b></div>", unsafe_allow_html=True)
 
-                        st.markdown(
-                            f"Pr: {state['target']['r']:.2f}, "
-                            f"Pf: {state['target']['g']:.2f}, "
-                            f"Ps: {state['target']['b']:.2f}"
-                        )
+                        icon_params = state.get('icon_params', {})
+                        st.markdown(f"""
+**State:** Pr: `{state['target']['r']:.2f}` | Pf: `{state['target']['g']:.2f}` | Ps: `{state['target']['b']:.2f}`  
+**Size:** `{icon_params.get('size', 500)}px` | **Falloff:** `{icon_params.get('falloff_type', 'gaussian')}`  
+**Sigma:** `{icon_params.get('sigma', 0.30):.2f}` | **Intensity:** `{icon_params.get('intensity', 1.0):.1f}`  
+**Edge:** blur `{icon_params.get('edge_blur', 0.5):.1f}` | factor `{icon_params.get('edge_factor', 0.5):.1f}`
+                        """)
 
                         if st.button("Load", key=f"load_state_{state['name']}"):
                             st.session_state.load_state = state['target']
@@ -692,19 +703,19 @@ def main():
         with col1:
             st.subheader("Basic Parameters")
 
-            size = st.slider("Image Size (pixels)", 
+            size = st.slider(f"Image Size: {st.session_state.size}px", 
                              min_value=500, 
                              max_value=2000, 
                              key="size",
                              step=100)
 
-            falloff_type = st.radio("Falloff Function", 
+            falloff_type = st.radio(f"Falloff Function: {st.session_state.falloff_type}", 
                                    ["gaussian", "inverse_square"],
                                    index=0 if st.session_state.falloff_type == 'gaussian' else 1,
                                    key="falloff_type")
 
             if falloff_type == "gaussian":
-                sigma = st.slider("Sigma (Gaussian falloff)", 
+                sigma = st.slider(f"Sigma (Gaussian falloff): {st.session_state.sigma:.2f}", 
                                  min_value=0.05, 
                                  max_value=0.5, 
                                  key="sigma",
@@ -712,7 +723,7 @@ def main():
             else:
                 sigma = 0.2
 
-            intensity = st.slider("Color Intensity", 
+            intensity = st.slider(f"Color Intensity: {st.session_state.intensity:.1f}", 
                                  min_value=0.1, 
                                  max_value=5.0, 
                                  key="intensity",
@@ -720,13 +731,13 @@ def main():
 
             st.subheader("Advanced Edge Smoothing")
 
-            edge_blur = st.slider("Edge Blur Radius", 
+            edge_blur = st.slider(f"Edge Blur Radius: {st.session_state.edge_blur:.1f}", 
                                 min_value=0.0, 
                                 max_value=2.0, 
                                 key="edge_blur",
                                 step=0.1)
 
-            edge_factor = st.slider("Edge Intensity Factor", 
+            edge_factor = st.slider(f"Edge Intensity Factor: {st.session_state.edge_factor:.1f}", 
                                     min_value=0.0, 
                                     max_value=1.0, 
                                     key="edge_factor",
@@ -740,15 +751,22 @@ def main():
 
             if st.button("Save Current Settings", key="save_rendering_preset_btn"):
                 if preset_name:
+                    # Read all params directly from st.session_state for source of truth
                     params = {
-                        'size': size,
-                        'falloff_type': falloff_type,
-                        'sigma': sigma,
-                        'intensity': intensity,
-                        'edge_blur': edge_blur,
-                        'edge_factor': edge_factor
+                        'size': st.session_state.size,
+                        'falloff_type': st.session_state.falloff_type,
+                        'sigma': st.session_state.sigma,
+                        'intensity': st.session_state.intensity,
+                        'edge_blur': st.session_state.edge_blur,
+                        'edge_factor': st.session_state.edge_factor
                     }
-                    thumbnail = generate_thumbnail(marshall_state, params, calibrated_white_point, size=100)
+                    # State vector from session state for thumbnail
+                    state_for_thumbnail = {
+                        'r': st.session_state.privacy_strength,
+                        'g': st.session_state.performance_strength,
+                        'b': st.session_state.personalization_strength
+                    }
+                    thumbnail = generate_thumbnail(state_for_thumbnail, params, calibrated_white_point, size=100)
                     save_rendering_preset(preset_name, params, thumbnail)
                     st.success(f"Rendering preset '{preset_name}' saved to this session!")
                     st.rerun()
@@ -784,12 +802,12 @@ def main():
                             else:
                                 st.markdown(f"<div style='text-align: center;'><b>{preset['name']}</b></div>", unsafe_allow_html=True)
 
-                            st.markdown(
-                                f"Size: {params.get('size', 500)}<br/>"
-                                f"Falloff: {params.get('falloff_type', 'gaussian')}<br/>"
-                                f"Intensity: {params.get('intensity', 1.0)}"
-                                , unsafe_allow_html=True
-                            )
+                            st.markdown(f"""
+**Size:** `{params.get('size', 500)}px`  
+**Falloff:** `{params.get('falloff_type', 'gaussian')}`  
+**Sigma:** `{params.get('sigma', 0.30):.2f}` | **Intensity:** `{params.get('intensity', 1.0):.1f}`  
+**Edge:** blur `{params.get('edge_blur', 0.5):.1f}` | factor `{params.get('edge_factor', 0.5):.1f}`
+                            """)
 
                             if st.button("Load", key=f"load_preset_{preset['name']}"):
                                 st.session_state.load_rendering_preset = params
