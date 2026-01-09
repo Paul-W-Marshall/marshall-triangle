@@ -12,12 +12,11 @@ A novel geometric visualization framework for representing triadic balance in co
 
 | Resource | URL |
 |----------|-----|
-| **Interactive App** | [Replit Deployment](https://985dc837-9240-474b-aa3c-ae5f1633b4a5-00-esqi2fvj78xf.riker.replit.dev) |
+| **Live App** | [marshalltriangle.com](https://marshalltriangle.com) |
+| **App Domain** | [marshalltriangle.app](https://marshalltriangle.app) |
 | **GitHub Repository** | [github.com/Paul-W-Marshall/marshall-triangle](https://github.com/Paul-W-Marshall/marshall-triangle) |
-| **Story Protocol Mint** | `marshall_triangle-v1-sovereign` |
+| **Story Protocol IP** | [View on Story Explorer](https://explorer.story.foundation/ipa/0x8eE1e758dafc5Cb0Ee6D862D26eAF68eE33cf920) |
 | **Preprint** | *(Coming soon — will be hosted on OSF/Zenodo/arXiv)* |
-
-*Note: Custom domain `marshalltriangle.app` is planned but not yet configured.*
 
 ## Overview
 
@@ -45,7 +44,8 @@ Key characteristics:
 |-------|-------------|--------|
 | **Interactive App** | Streamlit on Replit Autoscale | Active |
 | **GitHub Repo** | Canonical technical source | Active |
-| **Static Container** | marshalltriangle.com | Planned |
+| **Production Domain** | [marshalltriangle.com](https://marshalltriangle.com) | Active |
+| **App Domain** | [marshalltriangle.app](https://marshalltriangle.app) | Active |
 
 ## Licensing & Attribution
 
@@ -68,9 +68,10 @@ The conceptual framework is registered via **Story Protocol** as an on-chain IP 
 
 | Property | Value |
 |----------|-------|
-| **Minted Asset ID** | `marshall_triangle-v1-sovereign` |
+| **IP Asset** | `marshall_triangle-v1-sovereign` |
+| **Story Protocol Explorer** | [View IP Details](https://explorer.story.foundation/ipa/0x8eE1e758dafc5Cb0Ee6D862D26eAF68eE33cf920) |
 | **Rights Holder** | Fidelitas LLC – Series 1 |
-| **Year** | 2026 |
+| **Registered** | December 28, 2025 |
 
 The MIT license applies **only** to the implementation code. Use of the Marshall Triangle concept, methodology, or sovereign perceptual geometry framework requires separate authorization.
 
