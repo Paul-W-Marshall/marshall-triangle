@@ -5,15 +5,18 @@ description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
     "fonttools>=4.57.0",
+    "gitpython>=3.1.45",
     "h11>=0.16.0",
+    "idna>=3.11",
     "matplotlib>=3.10.1",
     "numpy>=2.2.4",
     "openai>=1.68.2",
     "pillow==12.2.0",
     "protobuf==6.33.5",
+    "pyarrow>=20.0.0",
     "requests>=2.32.4",
     "scipy>=1.15.2",
     "streamlit>=1.53.0",
     "tornado>=6.5.5",
-    "urllib3==2.6.3",
+    "urllib3>=2.7.0",
 ]
