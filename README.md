@@ -23,7 +23,7 @@ A novel geometric visualization framework for representing triadic balance in co
 The Marshall Triangle positions three competing concerns as **midpoint sources** along the edges of an equilateral triangle:
 
 - **Privacy (Red)** — User data protection and anonymity
-- **Performance (Green)** — System speed and efficiency  
+- **Performance (Green)** — System speed and efficiency
 - **Personalization (Blue)** — Tailored user experiences
 
 Secondary colors (Yellow, Cyan, Magenta) emerge at the triangle **vertices** through additive color mixing, while the **convergent white equilibrium point** manifests at the geometric center when all three concerns are balanced.
@@ -42,10 +42,33 @@ Key characteristics:
 
 | Layer | Description | Status |
 |-------|-------------|--------|
-| **Interactive App** | Streamlit on Replit Autoscale | Active |
+| **Stealth Gate** | Tornado proxy — serves curtain to public, routes authorized users to app | Active |
+| **Interactive App** | Streamlit on Replit Autoscale (internal port 8501) | Active |
 | **GitHub Repo** | Canonical technical source | Active |
 | **Production Domain** | [marshalltriangle.com](https://marshalltriangle.com) | Active |
 | **App Domain** | [marshalltriangle.app](https://marshalltriangle.app) | Active |
+
+### Access Control
+
+The app is currently in **stealth mode**. The public URL displays a holding page. Authorized users bypass it via a secret link:
+
+```
+https://your-app.replit.app/?key=BYPASS_KEY
+```
+
+The first visit sets a secure cookie (7-day expiry). Subsequent visits are recognized automatically. The key is stored as an environment secret and can be rotated at any time.
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `app.py` | Streamlit application entry point and UI |
+| `harmony_index.py` | HarmonyIndex rendering engine |
+| `stealth_server.py` | Tornado-based stealth gate and proxy |
+| `index.html` | Public-facing stealth curtain page |
+| `scripts/post-merge.sh` | Dependency sync script run after dependency updates |
+| `pyproject.toml` | Python project manifest and dependency constraints |
+| `uv.lock` | Locked dependency tree for reproducible installs |
 
 ## Licensing & Attribution
 
@@ -90,24 +113,24 @@ If referencing this work in academic or commercial contexts:
 | **Canonical sigma** | 0.30 | Optimal Gaussian falloff |
 | **Valid range** | 0.1 – 0.6 | User-adjustable |
 | **Adaptive sigma** | Auto-compensates when imbalance > 20% | Maintains visual coherence |
+| **Default intensity** | 1.2 | Gaussian amplitude multiplier |
+| **Default size** | 500 px | Render resolution |
 
 ### Triadic Calibration
 
-Users can define a custom **white point of harmony** where any RGB combination renders as balanced. The calibration algorithm scales channels by `max / calibrated_value` to normalize the visual output.
+Users can define a custom **white point of harmony** where any RGB combination renders as balanced. The calibration algorithm scales channels by `max / calibrated_value` to normalize the visual output. Calibration is session-scoped and resets on page reload.
 
-### Key Files
+### Adaptive Sigma
 
-| File | Purpose |
-|------|---------|
-| `app.py` | Streamlit application entry point |
-| `harmony_index.py` | HarmonyIndex rendering engine |
-| `refresh_trigger.py` | State synchronization helper |
-| `calibration.json` | User's white point calibration (runtime) |
-| `harmony_presets.db` | SQLite database for saved states |
+When the imbalance score of the state vector exceeds 20% (measured as normalized standard deviation across the three channels), sigma is automatically raised toward a maximum of 0.48 to preserve visual coherence. The compensation threshold and range are:
+
+- Threshold: imbalance > 0.20
+- Minimum compensated sigma: 0.35
+- Maximum sigma: 0.48
 
 ## Copyright
 
-© 2026 Paul W. Marshall  
+© 2026 Paul W. Marshall
 © 2026 Fidelitas LLC – Series 1
 
 ---
