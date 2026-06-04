@@ -3,12 +3,16 @@ import subprocess
 import threading
 import time
 
+import tornado.gen
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 import tornado.httpclient
 import tornado.httputil
 import tornado.websocket
+
+STREAMLIT_RETRY_ATTEMPTS = 15   # number of tries
+STREAMLIT_RETRY_DELAY   = 1.0  # seconds between tries
 
 BYPASS_KEY = os.environ.get("BYPASS_KEY", "")
 COOKIE_NAME = "stealth_bypass"
@@ -56,26 +60,32 @@ class GateHandler(tornado.web.RequestHandler):
             self.render("index.html")
             return
 
-        # Proxy to Streamlit
+        # Proxy to Streamlit with retry loop
         url = f"http://127.0.0.1:{STREAMLIT_PORT}{self.request.uri}"
         client = tornado.httpclient.AsyncHTTPClient()
         headers = tornado.httputil.HTTPHeaders(self.request.headers)
         headers["Host"] = f"127.0.0.1:{STREAMLIT_PORT}"
 
-        try:
-            response = await client.fetch(
-                url,
-                method=self.request.method,
-                headers=headers,
-                body=self.request.body if self.request.body else None,
-                allow_nonstandard_methods=True,
-                follow_redirects=False,
-                raise_error=False,
-            )
-        except Exception:
-            self.set_status(502)
-            self.write("App is starting up — please refresh in a moment.")
-            return
+        response = None
+        for attempt in range(STREAMLIT_RETRY_ATTEMPTS):
+            try:
+                response = await client.fetch(
+                    url,
+                    method=self.request.method,
+                    headers=headers,
+                    body=self.request.body if self.request.body else None,
+                    allow_nonstandard_methods=True,
+                    follow_redirects=False,
+                    raise_error=False,
+                )
+                break  # success — exit retry loop
+            except Exception:
+                if attempt < STREAMLIT_RETRY_ATTEMPTS - 1:
+                    await tornado.gen.sleep(STREAMLIT_RETRY_DELAY)
+                else:
+                    self.set_status(503)
+                    self.write("App is unavailable — please try again shortly.")
+                    return
 
         self.set_status(response.code)
         for name, value in response.headers.get_all():
@@ -104,13 +114,18 @@ class WSGateHandler(tornado.websocket.WebSocketHandler):
             return
 
         ws_url = f"ws://127.0.0.1:{STREAMLIT_PORT}{self.request.uri}"
-        try:
-            self._upstream = await tornado.websocket.websocket_connect(
-                ws_url,
-                on_message_callback=self._on_upstream_message,
-            )
-        except Exception:
-            self.close(1011, "upstream unavailable")
+        for attempt in range(STREAMLIT_RETRY_ATTEMPTS):
+            try:
+                self._upstream = await tornado.websocket.websocket_connect(
+                    ws_url,
+                    on_message_callback=self._on_upstream_message,
+                )
+                break
+            except Exception:
+                if attempt < STREAMLIT_RETRY_ATTEMPTS - 1:
+                    await tornado.gen.sleep(STREAMLIT_RETRY_DELAY)
+                else:
+                    self.close(1011, "upstream unavailable")
 
     def _on_upstream_message(self, message):
         if message is None:
