@@ -77,6 +77,7 @@ class GateHandler(tornado.web.RequestHandler):
                     allow_nonstandard_methods=True,
                     follow_redirects=False,
                     raise_error=False,
+                    decompress_response=False,  # pass raw bytes; browser decompresses
                 )
                 break  # success — exit retry loop
             except Exception:
@@ -88,9 +89,19 @@ class GateHandler(tornado.web.RequestHandler):
                     return
 
         self.set_status(response.code)
+        # Forward headers cleanly: use set_header (not add_header) to prevent
+        # duplicating Tornado's own default headers; Set-Cookie needs add_header
+        # to allow multiple cookies. Skip hop-by-hop headers.
+        seen = set()
         for name, value in response.headers.get_all():
-            if name.lower() not in ("transfer-encoding", "content-encoding", "connection"):
+            lower = name.lower()
+            if lower in ("transfer-encoding", "connection"):
+                continue
+            if lower == "set-cookie":
                 self.add_header(name, value)
+            elif lower not in seen:
+                self.set_header(name, value)
+                seen.add(lower)
         if response.body:
             self.write(response.body)
 
