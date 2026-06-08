@@ -49,17 +49,7 @@ class GateHandler(tornado.web.RequestHandler):
     """All plain HTTP traffic: show stealth page or proxy to Streamlit."""
 
     async def _handle(self):
-        # Key presented in query string → set cookie and redirect clean
-        key = self.get_argument("key", None)
-        if key and BYPASS_KEY and key == BYPASS_KEY:
-            self.set_secure_cookie(COOKIE_NAME, "1", expires_days=7)
-            self.redirect(self.request.path or "/")
-            return
-
-        if not is_authorized(self):
-            self.render("index.html")
-            return
-
+        # Gate disabled — proxy all traffic directly to Streamlit
         # Proxy to Streamlit with retry loop
         url = f"http://127.0.0.1:{STREAMLIT_PORT}{self.request.uri}"
         client = tornado.httpclient.AsyncHTTPClient()
@@ -119,10 +109,6 @@ class WSGateHandler(tornado.websocket.WebSocketHandler):
     async def open(self, *args, **kwargs):
         self._client_terminated = False
         self._upstream = None
-
-        if not is_authorized(self):
-            self.close(1008, "not authorized")
-            return
 
         ws_url = f"ws://127.0.0.1:{STREAMLIT_PORT}{self.request.uri}"
         for attempt in range(STREAMLIT_RETRY_ATTEMPTS):
