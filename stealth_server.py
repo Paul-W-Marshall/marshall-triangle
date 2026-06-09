@@ -77,7 +77,7 @@ class ProxyHandler(tornado.web.RequestHandler):
             url += "?" + self.request.query
         headers = {
             k: v for k, v in self.request.headers.get_all()
-            if k.lower() not in ("host", "connection")
+            if k.lower() not in ("connection",)
         }
         client = tornado.httpclient.AsyncHTTPClient()
         try:
