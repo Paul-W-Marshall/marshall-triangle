@@ -54,7 +54,7 @@ The conceptual framework is registered on **Story Protocol**:
 
 For licensing questions or authorization requests, contact:
 
-**Fidelitas LLC – Series 1**  
+**Fidelitas LLC**  
 © 2026 Paul W. Marshall
 
 ---

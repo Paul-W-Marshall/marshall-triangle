@@ -1,7 +1,7 @@
 # Marshall Triangle — Technical Report
 
 **Author:** Paul W. Marshall
-**Entity:** Fidelitas LLC – Series 1
+**Entity:** Fidelitas LLC
 **Date:** May 2026
 **Version:** 1.0
 
@@ -274,7 +274,7 @@ The application is fully stateless. No database is provisioned. Session state is
 | **Conceptual framework** | All Rights Reserved — Marshall Triangle concept, sovereign perceptual geometry, triadic calibration methodology |
 | **On-chain IP registration** | Story Protocol asset `marshall_triangle-v1-sovereign` |
 | **Story Protocol Explorer** | [0x8eE1e758dafc5Cb0Ee6D862D26eAF68eE33cf920](https://explorer.story.foundation/ipa/0x8eE1e758dafc5Cb0Ee6D862D26eAF68eE33cf920) |
-| **Rights holder** | Fidelitas LLC – Series 1 |
+| **Rights holder** | Fidelitas LLC |
 | **Registration date** | December 28, 2025 |
 
 ---
@@ -286,4 +286,4 @@ The application is fully stateless. No database is provisioned. Session state is
 ---
 
 © 2026 Paul W. Marshall
-© 2026 Fidelitas LLC – Series 1
+© 2026 Fidelitas LLC. All rights reserved.

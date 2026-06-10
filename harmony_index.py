@@ -2,7 +2,7 @@
 Marshall Triangle Rendering Engine (HarmonyIndex)
 
 Author: Paul W. Marshall
-Entity: Fidelitas LLC – Series 1
+Entity: Fidelitas LLC
 Year: 2026
 
 License Summary:

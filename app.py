@@ -2,7 +2,7 @@
 Marshall Triangle Visualization Application
 
 Author: Paul W. Marshall
-Entity: Fidelitas LLC – Series 1
+Entity: Fidelitas LLC
 Year: 2026
 
 License Summary:
@@ -824,7 +824,10 @@ def main():
     st.markdown("""
     <div style="text-align: center; color: #888; font-size: 0.85em; padding: 1rem 0;">
         <strong>Marshall Triangle</strong><br/>
-        &copy; 2026 Fidelitas LLC – Series 1 | Author: Paul W. Marshall<br/>
+        &copy; 2026 Fidelitas LLC. All rights reserved. | Author: Paul W. Marshall<br/>
+        <span style="font-size: 0.8em; opacity: 0.85;">
+            Covered by Fidelitas LLC Patent Portfolio (U.S. Prov. App. No. 63/841,753, Pending). Built on the BDCN Architecture.
+        </span><br/>
         <a href="https://github.com/Paul-W-Marshall/marshall-triangle" target="_blank" style="color: #888;">GitHub Repository</a><br/>
         <span style="font-size: 0.8em;">
             Code: MIT | Figures: CC BY-NC 4.0 | Conceptual Framework: All Rights Reserved

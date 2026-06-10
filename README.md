@@ -93,7 +93,7 @@ The conceptual framework is registered via **Story Protocol** as an on-chain IP 
 |----------|-------|
 | **IP Asset** | `marshall_triangle-v1-sovereign` |
 | **Story Protocol Explorer** | [View IP Details](https://explorer.story.foundation/ipa/0x8eE1e758dafc5Cb0Ee6D862D26eAF68eE33cf920) |
-| **Rights Holder** | Fidelitas LLC – Series 1 |
+| **Rights Holder** | Fidelitas LLC |
 | **Registered** | December 28, 2025 |
 
 The MIT license applies **only** to the implementation code. Use of the Marshall Triangle concept, methodology, or sovereign perceptual geometry framework requires separate authorization.
@@ -131,7 +131,7 @@ When the imbalance score of the state vector exceeds 20% (measured as normalized
 ## Copyright
 
 © 2026 Paul W. Marshall
-© 2026 Fidelitas LLC – Series 1
+© 2026 Fidelitas LLC. All rights reserved.
 
 ---
 
