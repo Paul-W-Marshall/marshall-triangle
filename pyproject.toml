@@ -12,10 +12,10 @@ dependencies = [
     "numpy>=2.2.4",
     "pillow==12.2.0",
     "protobuf==6.33.5",
-    "pyarrow>=20.0.0",
+    "pyarrow~=24.0",
     "requests>=2.32.4",
     "scipy>=1.15.2",
     "streamlit==1.57.0",
-    "tornado>=6.5.5",
+    "tornado~=6.5",
     "urllib3>=2.7.0",
 ]
