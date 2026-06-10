@@ -325,7 +325,7 @@ def _render_download_gate(buf: io.BytesIO, key_suffix: str = "") -> None:
         code_input = st.text_input(
             "Enter download code",
             value=st.session_state.download_code_input,
-            placeholder="magicwordNN",
+            placeholder="",
             key=f"dl_code_{key_suffix}",
             label_visibility="visible",
         )
