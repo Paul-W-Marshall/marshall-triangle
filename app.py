@@ -151,15 +151,17 @@ def custom_css():
         border-radius: 4px 4px 0 0;
     }
 
-    /* Hide Print and Record screen from the main menu */
-    [data-testid="main-menu-list"] li:has([data-testid="main-menu-print"]),
-    [data-testid="main-menu-list"] li:has([data-testid="main-menu-record-screen"]) {
+    /* Hide Print and Record screen from the main menu (Streamlit 1.57+) */
+    [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-print"]),
+    [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-recordScreencast"]),
+    [data-testid="stMainMenuItem-print"],
+    [data-testid="stMainMenuItem-recordScreencast"] {
         display: none !important;
     }
 
-    /* Hide System theme button (first button in the theme selector group) */
-    [data-testid="stThemeOptionsPanel"] button:first-of-type,
-    [data-baseweb="popover"] [data-testid="stThemeOptionsPanel"] > div > button:first-child {
+    /* Hide System theme button (first button in the theme selector group, Streamlit 1.57+) */
+    [data-testid="stThemeSwitcher"] button:first-of-type,
+    [data-testid="stThemeSwitcher"] > div > button:first-child {
         display: none !important;
     }
     </style>

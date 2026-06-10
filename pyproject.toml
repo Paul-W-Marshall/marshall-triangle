@@ -10,7 +10,6 @@ dependencies = [
     "idna>=3.11",
     "matplotlib>=3.10.1",
     "numpy>=2.2.4",
-    "openai>=1.68.2",
     "pillow==12.2.0",
     "protobuf==6.33.5",
     "pyarrow>=20.0.0",

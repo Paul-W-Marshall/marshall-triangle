@@ -184,9 +184,6 @@ def start_streamlit():
             "uv", "run", "streamlit", "run", "app.py",
             "--server.port", str(STREAMLIT_PORT),
             "--server.address", "127.0.0.1",
-            "--server.headless", "true",
-            "--server.enableCORS", "false",
-            "--server.enableXsrfProtection", "false",
         ]
     )
     _poll_streamlit()
