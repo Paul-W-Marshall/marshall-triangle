@@ -89,7 +89,7 @@ class ProxyHandler(tornado.web.RequestHandler):
                     headers=headers,
                     body=self.request.body or None,
                     allow_nonstandard_methods=True,
-                    decompress_response=False,
+                    decompress_response=True,
                     follow_redirects=False,
                 )
             )
@@ -102,7 +102,8 @@ class ProxyHandler(tornado.web.RequestHandler):
                 return
         self.set_status(resp.code)
         for k, v in resp.headers.get_all():
-            if k.lower() not in ("transfer-encoding", "connection", "content-encoding"):
+            if k.lower() not in ("transfer-encoding", "connection",
+                                  "content-encoding", "content-length"):
                 self.set_header(k, v)
         if resp.body:
             self.write(resp.body)
