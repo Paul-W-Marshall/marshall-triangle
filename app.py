@@ -150,6 +150,18 @@ def custom_css():
         padding: 10px 20px;
         border-radius: 4px 4px 0 0;
     }
+
+    /* Hide Print and Record screen from the main menu */
+    [data-testid="main-menu-list"] li:has([data-testid="main-menu-print"]),
+    [data-testid="main-menu-list"] li:has([data-testid="main-menu-record-screen"]) {
+        display: none !important;
+    }
+
+    /* Hide System theme button (first button in the theme selector group) */
+    [data-testid="stThemeOptionsPanel"] button:first-of-type,
+    [data-baseweb="popover"] [data-testid="stThemeOptionsPanel"] > div > button:first-child {
+        display: none !important;
+    }
     </style>
     """
 
