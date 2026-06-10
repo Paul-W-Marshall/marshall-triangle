@@ -151,12 +151,19 @@ def custom_css():
         border-radius: 4px 4px 0 0;
     }
 
-    /* Hide Print, Record screen, and About from the main menu (Streamlit 1.57+) */
+    /* Hide Print, Record screen from the main menu (Streamlit 1.57+) */
     [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-print"]),
     [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-recordScreencast"]),
-    [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-about"]),
     [data-testid="stMainMenuItem-print"],
-    [data-testid="stMainMenuItem-recordScreencast"],
+    [data-testid="stMainMenuItem-recordScreencast"] {
+        display: none !important;
+    }
+
+    /* Hide the About menu item — its dialog shows "Made with Streamlit v1.57.0".
+       In Streamlit 1.57 the text is rendered inside DialogType.ABOUT (a Modal),
+       not in the theme switcher popover. Hiding the menu item prevents the dialog
+       from being opened at all. */
+    [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-about"]),
     [data-testid="stMainMenuItem-about"] {
         display: none !important;
     }
@@ -167,11 +174,14 @@ def custom_css():
         display: none !important;
     }
 
-    /* Replace main menu MoreVert (⋮) icon with a light/dark glyph (🌗) */
-    [data-testid="stMainMenu"] button svg {
+    /* Replace main menu MoreVert (⋮) icon with a light/dark glyph (🌗).
+       stMainMenu contains exactly one button (the trigger); the menu popover
+       renders in a separate DOM portal so this selector cannot affect menu items. */
+    [data-testid="stMainMenu"] > button:first-of-type svg,
+    [data-testid="stMainMenu"] button:first-of-type svg {
         display: none !important;
     }
-    [data-testid="stMainMenu"] button::after {
+    [data-testid="stMainMenu"] button:first-of-type::after {
         content: "🌗";
         font-size: 20px;
         line-height: 1;
