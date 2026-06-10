@@ -151,11 +151,13 @@ def custom_css():
         border-radius: 4px 4px 0 0;
     }
 
-    /* Hide Print and Record screen from the main menu (Streamlit 1.57+) */
+    /* Hide Print, Record screen, and About from the main menu (Streamlit 1.57+) */
     [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-print"]),
     [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-recordScreencast"]),
+    [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-about"]),
     [data-testid="stMainMenuItem-print"],
-    [data-testid="stMainMenuItem-recordScreencast"] {
+    [data-testid="stMainMenuItem-recordScreencast"],
+    [data-testid="stMainMenuItem-about"] {
         display: none !important;
     }
 
@@ -163,6 +165,19 @@ def custom_css():
     [data-testid="stThemeSwitcher"] button:first-of-type,
     [data-testid="stThemeSwitcher"] > div > button:first-child {
         display: none !important;
+    }
+
+    /* Replace main menu MoreVert (⋮) icon with a light/dark glyph (🌗) */
+    [data-testid="stMainMenu"] button svg {
+        display: none !important;
+    }
+    [data-testid="stMainMenu"] button::after {
+        content: "🌗";
+        font-size: 20px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     </style>
     """
