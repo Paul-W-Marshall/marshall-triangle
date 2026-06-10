@@ -160,11 +160,19 @@ def custom_css():
     }
 
     /* Hide the About menu item — its dialog shows "Made with Streamlit v1.57.0".
-       In Streamlit 1.57 the text is rendered inside DialogType.ABOUT (a Modal),
-       not in the theme switcher popover. Hiding the menu item prevents the dialog
-       from being opened at all. */
+       In Streamlit 1.57 the text is in DialogType.ABOUT (a Modal titled "Made with"),
+       not in the Settings/theme dialog. Hiding the menu item is the primary prevention. */
     [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-about"]),
     [data-testid="stMainMenuItem-about"] {
+        display: none !important;
+    }
+
+    /* Belt-and-suspenders: also suppress the About dialog overlay if it is somehow
+       triggered. The About dialog (DialogType.ABOUT) is the only Streamlit modal that
+       contains a raw <a href="https://streamlit.io"> element (StyledAboutLink).
+       [data-testid="stDialog"] is the Root backdrop wrapper for ALL Streamlit modals;
+       :has(a[href*="streamlit.io"]) narrows it to the About dialog uniquely. */
+    [data-testid="stDialog"]:has(a[href*="streamlit.io"]) {
         display: none !important;
     }
 
