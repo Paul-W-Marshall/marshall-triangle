@@ -23,6 +23,7 @@ from PIL import Image
 import io
 import base64
 import time
+import re
 from typing import Dict, Optional, List, Any
 
 def custom_css():
@@ -205,6 +206,55 @@ def custom_css():
         align-items: center;
         justify-content: center;
     }
+
+    /* Protect displayed triangle images from casual saving */
+    .stImage img,
+    [data-testid="stImage"] img {
+        pointer-events: none !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -webkit-user-drag: none !important;
+    }
+
+    /* Overlay wrapper for protected images */
+    .mt-protected-img {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    .mt-protected-img img {
+        display: block;
+        width: 100%;
+        pointer-events: none !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -webkit-user-drag: none !important;
+    }
+    .mt-protected-img::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: transparent;
+        pointer-events: all;
+        user-select: none;
+        z-index: 10;
+    }
+
+    /* Protect pyplot canvas from right-click / drag */
+    .mt-protected-plot {
+        position: relative;
+        display: block;
+        width: 100%;
+    }
+    .mt-protected-plot::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: transparent;
+        pointer-events: all;
+        user-select: none;
+        z-index: 10;
+    }
     </style>
     """
 
@@ -244,6 +294,53 @@ def calculate_adaptive_sigma(base_sigma: float, r: float, g: float, b: float) ->
         return (base_sigma, imbalance, False)
     
     return (required_sigma, imbalance, True)
+
+def is_valid_download_code(code: str) -> bool:
+    """Return True if code matches the pattern magicword followed by exactly 2 digits."""
+    return bool(re.match(r'^magicword\d{2}$', code.strip()))
+
+def _render_protected_image(img) -> None:
+    """Render a PIL image as a base64-encoded HTML img tag wrapped in a no-save overlay."""
+    buf = io.BytesIO()
+    img.save(buf, format='PNG')
+    b64 = base64.b64encode(buf.getvalue()).decode()
+    st.markdown(
+        f'<div class="mt-protected-img">'
+        f'<img src="data:image/png;base64,{b64}" draggable="false" />'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+def _render_download_gate(buf: io.BytesIO, key_suffix: str = "") -> None:
+    """Show download button if code already validated; otherwise show code-gate input."""
+    if st.session_state.download_code_valid:
+        st.download_button(
+            label="Download Marshall Triangle",
+            data=buf.getvalue(),
+            file_name=f"marshall_triangle_{int(time.time())}.png",
+            mime="image/png",
+            key=f"dl_btn_{key_suffix}",
+        )
+    else:
+        code_input = st.text_input(
+            "Enter download code",
+            value=st.session_state.download_code_input,
+            placeholder="magicwordNN",
+            key=f"dl_code_{key_suffix}",
+            label_visibility="visible",
+        )
+        if st.button("Unlock Download", key=f"dl_submit_{key_suffix}"):
+            if is_valid_download_code(code_input):
+                st.session_state.download_code_valid = True
+                st.session_state.download_code_input = code_input.strip()
+                st.rerun()
+            else:
+                st.error("Invalid code. Please check and try again.")
+        st.markdown(
+            "For licensing information or source code, consult the "
+            "[GitHub repository](https://github.com/Paul-W-Marshall/marshall-triangle).",
+            unsafe_allow_html=False,
+        )
 
 def get_calibration() -> Dict[str, float]:
     """Get calibration from session state (ephemeral)"""
@@ -369,6 +466,10 @@ def main():
         st.session_state.label_expanded = True
     if 'prev_show_labeled' not in st.session_state:
         st.session_state.prev_show_labeled = False
+    if 'download_code_valid' not in st.session_state:
+        st.session_state.download_code_valid = False
+    if 'download_code_input' not in st.session_state:
+        st.session_state.download_code_input = ""
 
     # Initialize session state for rendering parameters if not present
     if 'size' not in st.session_state:
@@ -507,7 +608,9 @@ def main():
     if show_labeled and st.session_state.label_expanded:
         # Full-width expanded mode for labeled diagram
         fig = harmony.plot_with_labels(harmonyState=marshall_state, falloff_type=falloff_type)
+        st.markdown('<div class="mt-protected-plot">', unsafe_allow_html=True)
         st.pyplot(fig)
+        st.markdown('</div>', unsafe_allow_html=True)
         plt.close(fig)
         
         # Toggle button to collapse
@@ -521,12 +624,7 @@ def main():
         buf = io.BytesIO()
         img_export = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
         img_export.save(buf, format='PNG')
-        st.download_button(
-            label="Download Marshall Triangle",
-            data=buf.getvalue(),
-            file_name=f"marshall_triangle_{int(time.time())}.png",
-            mime="image/png"
-        )
+        _render_download_gate(buf, key_suffix="expanded")
     else:
         # Side-by-side column layout (collapsed labeled or unlabeled)
         col1, col2 = st.columns([3, 2])
@@ -534,7 +632,9 @@ def main():
         with col1:
             if show_labeled:
                 fig = harmony.plot_with_labels(harmonyState=marshall_state, falloff_type=falloff_type)
+                st.markdown('<div class="mt-protected-plot">', unsafe_allow_html=True)
                 st.pyplot(fig)
+                st.markdown('</div>', unsafe_allow_html=True)
                 plt.close(fig)
                 
                 # Toggle button to expand
@@ -543,7 +643,7 @@ def main():
                     st.rerun()
             else:
                 img = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
-                st.image(img, width="stretch")
+                _render_protected_image(img)
 
         with col2:
             render_settings_summary()
@@ -551,12 +651,7 @@ def main():
             buf = io.BytesIO()
             img_export = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
             img_export.save(buf, format='PNG')
-            st.download_button(
-                label="Download Marshall Triangle",
-                data=buf.getvalue(),
-                file_name=f"marshall_triangle_{int(time.time())}.png",
-                mime="image/png"
-            )
+            _render_download_gate(buf, key_suffix="sidebar")
 
     # Tab selection with persistence using radio buttons styled as tabs
     tab_names = ["About the Marshall Triangle", "State & Calibration", "Visualization Settings"]
