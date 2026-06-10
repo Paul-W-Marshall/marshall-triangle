@@ -176,7 +176,15 @@ def custom_css():
         display: none !important;
     }
 
-    /* Hide System theme button (first button in the theme selector group, Streamlit 1.57+) */
+    /* Hide "Made with Streamlit v1.57.0" attribution within the theme/settings popover.
+       Targets any attribution paragraph, small tag, or footer node rendered inside the
+       stThemeSwitcher area. Also hides the System theme button (first button in the
+       theme selector group, Streamlit ≤1.57). */
+    [data-testid="stThemeSwitcher"] small,
+    [data-testid="stThemeSwitcher"] p,
+    [data-testid="stThemeSwitcher"] [class*="attribution"],
+    [data-testid="stThemeSwitcher"] [class*="footer"],
+    [data-testid="stThemeSwitcher"] > div > *:last-child:not(button),
     [data-testid="stThemeSwitcher"] button:first-of-type,
     [data-testid="stThemeSwitcher"] > div > button:first-child {
         display: none !important;
