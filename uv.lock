@@ -892,7 +892,7 @@ requires-dist = [
     { name = "pyarrow", specifier = ">=20.0.0" },
     { name = "requests", specifier = ">=2.32.4" },
     { name = "scipy", specifier = ">=1.15.2" },
-    { name = "streamlit", specifier = ">=1.53.0" },
+    { name = "streamlit", specifier = "==1.57.0" },
     { name = "tornado", specifier = ">=6.5.5" },
     { name = "urllib3", specifier = ">=2.7.0" },
 ]
