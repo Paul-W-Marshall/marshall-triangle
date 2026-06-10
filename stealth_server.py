@@ -8,6 +8,7 @@ import urllib.request
 import tornado.ioloop
 import tornado.web
 import tornado.httpclient
+import tornado.httputil
 import tornado.websocket
 import tornado.httpserver
 import tornado.gen
@@ -128,9 +129,27 @@ class WSProxyHandler(tornado.websocket.WebSocketHandler):
         url = f"ws://127.0.0.1:{STREAMLIT_PORT}/{path}"
         if self.request.query:
             url += "?" + self.request.query
+
+        # Forward the original Host + X-Forwarded-* headers so Streamlit
+        # builds correct media URLs (https://domain/media/…) instead of
+        # http://127.0.0.1:8501/media/…
+        skip = {
+            "connection", "upgrade",
+            "sec-websocket-key", "sec-websocket-version",
+            "sec-websocket-extensions", "sec-websocket-protocol",
+        }
+        forward = tornado.httputil.HTTPHeaders()
+        for k, v in self.request.headers.get_all():
+            if k.lower() not in skip:
+                forward.add(k, v)
+        # Ensure downstream knows the public scheme
+        if "X-Forwarded-Proto" not in forward:
+            forward["X-Forwarded-Proto"] = "https"
+
+        ws_req = tornado.httpclient.HTTPRequest(url, headers=forward)
         try:
             self._upstream = await tornado.websocket.websocket_connect(
-                url,
+                ws_req,
                 on_message_callback=self._from_upstream,
             )
         except Exception as e:
