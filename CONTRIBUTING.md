@@ -43,9 +43,8 @@ The following require explicit permission from Fidelitas LLC:
 
 ## Live Application
 
-The Marshall Triangle is live at:
-- **[marshalltriangle.com](https://marshalltriangle.com)** — Production app
-- **[marshalltriangle.app](https://marshalltriangle.app)** — App domain
+- **[marshalltriangle.app](https://marshalltriangle.app)** — Interactive application
+- **[marshalltriangle.com](https://marshalltriangle.com)** — Landing and docs site
 
 The conceptual framework is registered on **Story Protocol**:
 - [View IP Details on Story Explorer](https://explorer.story.foundation/ipa/0x8eE1e758dafc5Cb0Ee6D862D26eAF68eE33cf920)

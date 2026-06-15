@@ -1,12 +1,11 @@
 # Marshall Triangle
 
-A novel geometric visualization framework for representing triadic balance in complex systems through color theory and radial coordinate geometry.
+A geometric visualization framework for representing triadic balance in complex systems through color theory and radial coordinate geometry.
 
 ## Canonical Naming
 
 - **Public name**: Marshall Triangle
 - **Internal class**: HarmonyIndex (rendering engine)
-- **Pattern**: Semantic Governance Kit v1 — Technical / Tool Pattern
 
 ## Links
 
@@ -30,7 +29,7 @@ Secondary colors (Yellow, Cyan, Magenta) emerge at the triangle **vertices** thr
 
 ### Rendering Model
 
-The rendering engine uses **radial Gaussian falloff** from three midpoint sources—not barycentric interpolation. Each pixel's color is computed as the additive sum of distance-weighted contributions from Privacy (Red), Performance (Green), and Personalization (Blue) sources.
+The rendering engine uses **radial Gaussian falloff** from three midpoint sources — not barycentric interpolation. Each pixel's color is computed as the additive sum of distance-weighted contributions from Privacy (Red), Performance (Green), and Personalization (Blue) sources.
 
 Key characteristics:
 - **Falloff function**: Gaussian (`exp(-dist² / 2σ²)`)
@@ -42,20 +41,12 @@ Key characteristics:
 
 | Layer | Description | Status |
 |-------|-------------|--------|
-| **Stealth Gate** | Tornado proxy — serves curtain to public, routes authorized users to app | Active |
-| **Interactive App** | Streamlit on Replit (internal port 8501) — live at [marshalltriangle.app](https://marshalltriangle.app) | Active |
+| **Access Layer** | Tornado async HTTP server — serves the public endpoint and routes traffic to the app | Active |
+| **Interactive App** | Streamlit application — live at [marshalltriangle.app](https://marshalltriangle.app) | Active |
 | **Landing & Docs Site** | Static explanatory and documentary surface — [marshalltriangle.com](https://marshalltriangle.com) | Active |
 | **GitHub Repo** | Canonical technical source | Active |
 
-### Access Control
-
-The app is currently in **stealth mode**. The public URL displays a holding page. Authorized users bypass it via a secret link:
-
-```
-https://your-app.replit.app/?key=BYPASS_KEY
-```
-
-The first visit sets a secure cookie (7-day expiry). Subsequent visits are recognized automatically. The key is stored as an environment secret and can be rotated at any time.
+The application is currently in a limited-access rollout phase. Public availability will be announced via the landing site.
 
 ## Key Files
 
@@ -63,8 +54,8 @@ The first visit sets a secure cookie (7-day expiry). Subsequent visits are recog
 |------|---------|
 | `app.py` | Streamlit application entry point and UI |
 | `harmony_index.py` | HarmonyIndex rendering engine |
-| `stealth_server.py` | Tornado-based stealth gate and proxy |
-| `index.html` | Public-facing stealth curtain page |
+| `stealth_server.py` | Tornado-based HTTP server and proxy |
+| `index.html` | Public-facing holding page |
 | `scripts/post-merge.sh` | Dependency sync script run after dependency updates |
 | `pyproject.toml` | Python project manifest and dependency constraints |
 | `uv.lock` | Locked dependency tree for reproducible installs |
@@ -129,7 +120,7 @@ When the imbalance score of the state vector exceeds 20% (measured as normalized
 
 ## Copyright
 
-© 2026 Paul W. Marshall
+© 2026 Paul W. Marshall  
 © 2026 Fidelitas LLC. All rights reserved.
 
 ---

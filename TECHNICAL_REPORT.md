@@ -11,7 +11,7 @@
 
 Marshall Triangle is a geometric visualization framework for representing triadic balance in complex systems. It maps three competing concerns — Privacy, Performance, and Personalization — to color sources at the midpoints of an equilateral triangle and renders their interaction using radial Gaussian falloff. The result is a continuously graded color field that communicates the relative weight of each concern at a glance.
 
-The project is deployed as a Streamlit web application behind a Tornado-based access gate and is publicly accessible at:
+The project is deployed as a Streamlit web application served through a Tornado HTTP proxy and is publicly accessible at:
 
 - **[marshalltriangle.app](https://marshalltriangle.app)** — Interactive application (live)
 - **[marshalltriangle.com](https://marshalltriangle.com)** — Explanatory and documentary landing site (live)
@@ -29,16 +29,16 @@ Public Internet
       │
       ▼
 ┌─────────────────────────────┐
-│  Tornado Stealth Gate       │  port 5000  (public)
+│  Tornado HTTP Layer         │  port 5000  (public)
 │  stealth_server.py          │
-│  ── cookie / key auth       │
+│  ── holding page            │
 │  ── HTTP proxy              │
 │  ── WebSocket proxy         │
 └────────────┬────────────────┘
-             │  authorized traffic only
+             │
              ▼
 ┌─────────────────────────────┐
-│  Streamlit Application      │  port 8501  (internal)
+│  Streamlit Application      │  (internal)
 │  app.py                     │
 │  ── UI / session state      │
 │  ── HarmonyIndex calls      │
@@ -54,28 +54,15 @@ Public Internet
 └─────────────────────────────┘
 ```
 
-### 2.2 Stealth Gate (stealth_server.py)
+### 2.2 HTTP Layer (stealth_server.py)
 
-The stealth gate is a Tornado async HTTP server that runs on port 5000 — the only publicly exposed port. It serves two purposes: access control and transparent proxying.
-
-**Authorization flow:**
-
-1. A visitor arrives without credentials → the server renders `index.html` (the stealth curtain).
-2. A visitor arrives with `?key=<BYPASS_KEY>` → the server validates the key against the `BYPASS_KEY` environment secret, sets a signed secure cookie (`stealth_bypass`, 7-day expiry), and redirects to the same path without the query parameter.
-3. A visitor with a valid cookie → all HTTP and WebSocket traffic is proxied to the internal Streamlit instance on `127.0.0.1:8501`.
+The HTTP layer is a Tornado async HTTP server that runs on port 5000 — the only publicly exposed port. During the current limited-access rollout phase, the public URL displays a holding page (`index.html`). Traffic is proxied to the internal Streamlit application.
 
 **Proxy behavior:**
 
 - HTTP requests are proxied via `tornado.httpclient.AsyncHTTPClient` with method, headers, and body forwarded verbatim. `transfer-encoding`, `content-encoding`, and `connection` headers are stripped before forwarding the response to avoid framing errors.
 - WebSocket connections on `/_stcore/stream` and `/stream` are proxied via `tornado.websocket.websocket_connect`, with bidirectional message forwarding. Binary and text frames are both supported.
-- Streamlit is launched as a subprocess (`uv run streamlit run app.py`) on server startup, bound to `127.0.0.1:8501` with CORS and XSRF protection disabled (safe because it is not directly reachable from the internet).
-
-**Security properties:**
-
-- The `BYPASS_KEY` is stored exclusively as a Replit environment secret — never in source code or the lockfile.
-- The same key is used as the Tornado `cookie_secret` so signed cookies cannot be forged without knowledge of the key.
-- Rotating the key immediately invalidates all existing cookies.
-- The internal Streamlit port (8501) is not exposed in the Replit deployment configuration.
+- Streamlit is launched as a subprocess (`uv run streamlit run app.py`) on server startup, bound to a non-exposed internal port with CORS and XSRF protection disabled (not directly reachable from the internet).
 
 ### 2.3 Streamlit Application (app.py)
 
@@ -256,20 +243,20 @@ All remediations involved raising minimum version constraints in `pyproject.toml
 
 ### 5.1 Platform
 
-The application runs on Replit (Reserved VM), deployed as a single workflow (`Stealth Mode`) that executes `uv run python stealth_server.py`. The stealth server in turn spawns the Streamlit subprocess, so a single process command starts the full stack.
+The application runs on Replit (Reserved VM), deployed as a single workflow that executes `uv run python stealth_server.py`. The HTTP server in turn spawns the Streamlit subprocess, so a single process command starts the full stack.
 
 **Live endpoints:**
 
 | Domain | Role |
 |--------|------|
-| [marshalltriangle.app](https://marshalltriangle.app) | Interactive application — Tornado gate → Streamlit |
+| [marshalltriangle.app](https://marshalltriangle.app) | Interactive application — Tornado → Streamlit |
 | [marshalltriangle.com](https://marshalltriangle.com) | Static explanatory and documentary landing site |
 
 ### 5.2 Workflow
 
-| Workflow | Command | Port | Type |
-|----------|---------|------|------|
-| Stealth Mode | `uv run python stealth_server.py` | 5000 | webview |
+| Command | Port | Type |
+|---------|------|------|
+| `uv run python stealth_server.py` | 5000 | webview |
 
 ### 5.3 Statelessness
 
