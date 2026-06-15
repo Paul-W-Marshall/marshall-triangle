@@ -976,7 +976,7 @@ def main():
         <strong>Marshall Triangle</strong><br/>
         &copy; 2026 Fidelitas LLC. All rights reserved. | Author: Paul W. Marshall<br/>
         <span style="font-size: 0.8em; opacity: 0.85;">
-            Covered by Fidelitas LLC Patent Portfolio (U.S. Prov. App. No. 63/841,753, Pending). Built on the BDCN Architecture.
+            Covered by pending Fidelitas LLC intellectual property filings. Built on the BDCN Architecture.
         </span><br/>
         <a href="https://github.com/Paul-W-Marshall/marshall-triangle" target="_blank" style="color: #888;">GitHub Repository</a><br/>
         <span style="font-size: 0.8em;">
