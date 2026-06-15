@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use or reference this work, please cite it as below."
+title: "The Marshall Triangle: A Triadic Geometric Framework for Modeling Balance in Complex Systems"
+version: v1.1.1
+date-released: "2026-06-15"
+authors:
+  - family-names: Marshall
+    given-names: Paul W.
+    orcid: "https://orcid.org/0009-0004-3674-7883"
+    affiliation: "Fidelitas LLC"
+repository-code: "https://github.com/Paul-W-Marshall/marshall-triangle"
+url: "https://marshalltriangle.app"
+license: MIT
+abstract: >
+  The Marshall Triangle is a formal geometric framework for representing balance
+  among three competing system priorities. Inspired by color-space visualization,
+  simplex geometry, and multi-objective tradeoff modeling, the framework maps
+  triadic states into a continuous triangular domain in which relative dominance,
+  pairwise blending, and equilibrium can be explored visually and mathematically.
+keywords:
+  - triadic modeling
+  - computational geometry
+  - simplex visualization
+  - system balance
+  - harmony index
+  - visual analytics
+  - multi-objective tradeoffs
+  - color-space models
+  - radial basis functions
