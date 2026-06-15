@@ -11,7 +11,12 @@
 
 Marshall Triangle is a geometric visualization framework for representing triadic balance in complex systems. It maps three competing concerns — Privacy, Performance, and Personalization — to color sources at the midpoints of an equilateral triangle and renders their interaction using radial Gaussian falloff. The result is a continuously graded color field that communicates the relative weight of each concern at a glance.
 
-The project is deployed as a Streamlit web application behind a Tornado-based access gate, and is registered as an on-chain IP asset via Story Protocol (`marshall_triangle-v1-sovereign`).
+The project is deployed as a Streamlit web application behind a Tornado-based access gate and is publicly accessible at:
+
+- **[marshalltriangle.app](https://marshalltriangle.app)** — Interactive application (live)
+- **[marshalltriangle.com](https://marshalltriangle.com)** — Explanatory and documentary landing site (live)
+
+The framework is registered as an on-chain IP asset via Story Protocol (`marshall_triangle-v1-sovereign`).
 
 ---
 
@@ -251,13 +256,20 @@ All remediations involved raising minimum version constraints in `pyproject.toml
 
 ### 5.1 Platform
 
-The application runs on Replit Autoscale, deployed as a single workflow (`Stealth Mode`) that executes `python stealth_server.py`. The stealth server in turn spawns the Streamlit subprocess, so a single process command starts the full stack.
+The application runs on Replit (Reserved VM), deployed as a single workflow (`Stealth Mode`) that executes `uv run python stealth_server.py`. The stealth server in turn spawns the Streamlit subprocess, so a single process command starts the full stack.
+
+**Live endpoints:**
+
+| Domain | Role |
+|--------|------|
+| [marshalltriangle.app](https://marshalltriangle.app) | Interactive application — Tornado gate → Streamlit |
+| [marshalltriangle.com](https://marshalltriangle.com) | Static explanatory and documentary landing site |
 
 ### 5.2 Workflow
 
 | Workflow | Command | Port | Type |
 |----------|---------|------|------|
-| Stealth Mode | `python stealth_server.py` | 5000 | webview |
+| Stealth Mode | `uv run python stealth_server.py` | 5000 | webview |
 
 ### 5.3 Statelessness
 

@@ -12,11 +12,11 @@ A novel geometric visualization framework for representing triadic balance in co
 
 | Resource | URL |
 |----------|-----|
-| **Live App** | [marshalltriangle.com](https://marshalltriangle.com) |
-| **App Domain** | [marshalltriangle.app](https://marshalltriangle.app) |
+| **Interactive App** | [marshalltriangle.app](https://marshalltriangle.app) |
+| **Landing & Docs Site** | [marshalltriangle.com](https://marshalltriangle.com) |
 | **GitHub Repository** | [github.com/Paul-W-Marshall/marshall-triangle](https://github.com/Paul-W-Marshall/marshall-triangle) |
 | **Story Protocol IP** | [View on Story Explorer](https://explorer.story.foundation/ipa/0x8eE1e758dafc5Cb0Ee6D862D26eAF68eE33cf920) |
-| **Preprint** | *(Coming soon — will be hosted on OSF/Zenodo/arXiv)* |
+| **Preprint / Archive** | GitHub release and Zenodo DOI forthcoming; Preprints.org resubmission planned. |
 
 ## Overview
 
@@ -43,10 +43,9 @@ Key characteristics:
 | Layer | Description | Status |
 |-------|-------------|--------|
 | **Stealth Gate** | Tornado proxy — serves curtain to public, routes authorized users to app | Active |
-| **Interactive App** | Streamlit on Replit Autoscale (internal port 8501) | Active |
+| **Interactive App** | Streamlit on Replit (internal port 8501) — live at [marshalltriangle.app](https://marshalltriangle.app) | Active |
+| **Landing & Docs Site** | Static explanatory and documentary surface — [marshalltriangle.com](https://marshalltriangle.com) | Active |
 | **GitHub Repo** | Canonical technical source | Active |
-| **Production Domain** | [marshalltriangle.com](https://marshalltriangle.com) | Active |
-| **App Domain** | [marshalltriangle.app](https://marshalltriangle.app) | Active |
 
 ### Access Control
 
