@@ -22,3 +22,6 @@ replit.nix
 .DS_Store
 *.log
 /tmp/
+
+# replit agent metadata
+.agents/

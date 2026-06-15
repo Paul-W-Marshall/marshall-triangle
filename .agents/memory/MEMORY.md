@@ -1,1 +1,0 @@
-- [Streamlit proxy for VM deployment](streamlit-proxy-vm.md) — Tornado proxy on :5000 must return 200 immediately for health checks; Streamlit runs on :8501 internally.
