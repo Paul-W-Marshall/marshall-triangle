@@ -8,6 +8,7 @@ authors:
     given-names: Paul W.
     orcid: "https://orcid.org/0009-0004-3674-7883"
     affiliation: "Fidelitas LLC"
+doi: 10.5281/zenodo.20696529
 repository-code: "https://github.com/Paul-W-Marshall/marshall-triangle"
 url: "https://marshalltriangle.app"
 license: MIT

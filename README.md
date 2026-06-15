@@ -15,7 +15,7 @@ A geometric visualization framework for representing triadic balance in complex 
 | **Landing & Docs Site** | [marshalltriangle.com](https://marshalltriangle.com) |
 | **GitHub Repository** | [github.com/Paul-W-Marshall/marshall-triangle](https://github.com/Paul-W-Marshall/marshall-triangle) |
 | **Story Protocol IP** | [View on Story Explorer](https://explorer.story.foundation/ipa/0x8eE1e758dafc5Cb0Ee6D862D26eAF68eE33cf920) |
-| **Preprint / Archive** | [paper/Marshall_Triangle_Preprint_v1_1_1.pdf](./paper/Marshall_Triangle_Preprint_v1_1_1.pdf) — Zenodo DOI forthcoming |
+| **Preprint / Archive** | [paper/Marshall_Triangle_Preprint_v1_1_1.pdf](./paper/Marshall_Triangle_Preprint_v1_1_1.pdf) · [doi.org/10.5281/zenodo.20696529](https://doi.org/10.5281/zenodo.20696529) |
 
 ## Overview
 
@@ -72,7 +72,7 @@ The revised preprint is included in this repository as the canonical archive sou
 
 This version reduces self-citation exposure, adds external scholarly references, and strengthens the mathematical formulation. It is prepared for:
 - GitHub release (this repository)
-- Zenodo DOI archiving *(DOI forthcoming — will be inserted after release)*
+- Zenodo DOI archive: [https://doi.org/10.5281/zenodo.20696529](https://doi.org/10.5281/zenodo.20696529)
 - Later Preprints.org resubmission
 
 **Figures** referenced in the paper are stored in [`figures/`](./figures/).
