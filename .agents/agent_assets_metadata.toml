@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "FVz59_J9frKMdpVI-gP74"
+uri = "file://CTO_REPORT.md"
+type = "text"
+title = "Marshall Triangle — CTO Report"
