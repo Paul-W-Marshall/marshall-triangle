@@ -152,6 +152,47 @@ def custom_css():
         border-radius: 4px 4px 0 0;
     }
 
+    /* Two-tab radio navigation — balanced, intentional layout */
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        /* ensure no accidental column override */
+    }
+    div[data-testid="stRadio"] > label {
+        display: none;
+    }
+    div[data-testid="stRadio"] > div[role="radiogroup"] {
+        display: flex;
+        gap: 0;
+        border-bottom: 2px solid rgba(128, 128, 128, 0.25);
+        padding-bottom: 0;
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
+    div[data-testid="stRadio"] > div[role="radiogroup"] > label {
+        flex: 1;
+        text-align: center;
+        padding: 10px 24px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        letter-spacing: 0.01em;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+        cursor: pointer;
+        transition: border-color 0.2s ease, opacity 0.2s ease;
+        opacity: 0.65;
+    }
+    div[data-testid="stRadio"] > div[role="radiogroup"] > label:has(input:checked) {
+        border-bottom-color: #8888ff;
+        opacity: 1;
+        font-weight: 600;
+    }
+    div[data-testid="stRadio"] > div[role="radiogroup"] > label:hover:not(:has(input:checked)) {
+        opacity: 0.9;
+        border-bottom-color: rgba(136, 136, 255, 0.35);
+    }
+    div[data-testid="stRadio"] > div[role="radiogroup"] > label > div:first-child {
+        display: none;
+    }
+
     /* Hide Print, Record screen from the main menu (Streamlit 1.57+) */
     [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-print"]),
     [data-testid="stMainMenuList"] li:has([data-testid="stMainMenuItem-recordScreencast"]),
@@ -654,7 +695,7 @@ def main():
             _render_download_gate(buf, key_suffix="sidebar")
 
     # Tab selection with persistence using radio buttons styled as tabs
-    tab_names = ["About the Marshall Triangle", "State & Calibration", "Visualization Settings"]
+    tab_names = ["About the Marshall Triangle", "State & Calibration"]
     
     # Initialize active tab if not present or if it's an old format (int)
     if 'active_tab' not in st.session_state or st.session_state.active_tab not in tab_names:
@@ -843,131 +884,6 @@ def main():
                             st.rerun()
         else:
             st.info("No Marshall states saved yet. Create one by setting your preferred state and clicking 'Save Current State'.")
-
-    # Tab 3: Visualization Settings
-    elif selected_tab == "Visualization Settings":
-        st.header("Visualization Settings")
-
-        col1, col2 = st.columns([2, 1])
-
-        with col1:
-            st.subheader("Basic Parameters")
-
-            size = st.slider(f"Image Size: {st.session_state.size}px", 
-                             min_value=500, 
-                             max_value=2000, 
-                             key="size",
-                             step=100)
-
-            falloff_type = st.radio(f"Falloff Function: {st.session_state.falloff_type}", 
-                                   ["gaussian", "inverse_square"],
-                                   index=0 if st.session_state.falloff_type == 'gaussian' else 1,
-                                   key="falloff_type")
-
-            if falloff_type == "gaussian":
-                sigma = st.slider(f"Sigma (Gaussian falloff): {st.session_state.sigma:.2f}", 
-                                 min_value=0.05, 
-                                 max_value=0.5, 
-                                 key="sigma",
-                                 step=0.01)
-            else:
-                sigma = 0.2
-
-            intensity = st.slider(f"Color Intensity: {st.session_state.intensity:.1f}", 
-                                 min_value=0.1, 
-                                 max_value=5.0, 
-                                 key="intensity",
-                                 step=0.1)
-
-            st.subheader("Advanced Edge Smoothing")
-
-            edge_blur = st.slider(f"Edge Blur Radius: {st.session_state.edge_blur:.1f}", 
-                                min_value=0.0, 
-                                max_value=2.0, 
-                                key="edge_blur",
-                                step=0.1)
-
-            edge_factor = st.slider(f"Edge Intensity Factor: {st.session_state.edge_factor:.1f}", 
-                                    min_value=0.0, 
-                                    max_value=1.0, 
-                                    key="edge_factor",
-                                    step=0.1)
-
-        with col2:
-            st.subheader("Save Rendering Presets")
-            st.info("Presets are saved to your current session only.")
-
-            preset_name = st.text_input("Preset Name", value="", key="preset_name_input")
-
-            if st.button("Save Current Settings", key="save_rendering_preset_btn"):
-                if preset_name:
-                    # Read all params directly from st.session_state for source of truth
-                    params = {
-                        'size': st.session_state.size,
-                        'falloff_type': st.session_state.falloff_type,
-                        'sigma': st.session_state.sigma,
-                        'intensity': st.session_state.intensity,
-                        'edge_blur': st.session_state.edge_blur,
-                        'edge_factor': st.session_state.edge_factor
-                    }
-                    # State vector from session state for thumbnail
-                    state_for_thumbnail = {
-                        'r': st.session_state.privacy_strength,
-                        'g': st.session_state.performance_strength,
-                        'b': st.session_state.personalization_strength
-                    }
-                    thumbnail = generate_thumbnail(state_for_thumbnail, params, calibrated_white_point, size=100)
-                    save_rendering_preset(preset_name, params, thumbnail)
-                    st.success(f"Rendering preset '{preset_name}' saved to this session!")
-                    st.rerun()
-                else:
-                    st.warning("Please enter a name for the preset.")
-
-            if st.button("Reset to Default Settings"):
-                st.session_state.reset_rendering = True
-                st.rerun()
-
-        st.subheader("Saved Rendering Presets")
-
-        presets = get_rendering_presets()
-
-        if presets:
-            num_cols = 3
-            rows = [presets[i:i+num_cols] for i in range(0, len(presets), num_cols)]
-
-            for row in rows:
-                cols = st.columns(num_cols)
-
-                for i, preset in enumerate(row):
-                    if i < len(row):
-                        with cols[i]:
-                            thumbnail = preset['data'].get('thumbnail')
-                            params = preset['data'].get('params', {})
-                            
-                            if thumbnail:
-                                st.markdown(
-                                    f"<div style='text-align: center;'><img src='data:image/png;base64,{thumbnail}' width='100px'/><br/><b>{preset['name']}</b></div>", 
-                                    unsafe_allow_html=True
-                                )
-                            else:
-                                st.markdown(f"<div style='text-align: center;'><b>{preset['name']}</b></div>", unsafe_allow_html=True)
-
-                            st.markdown(f"""
-**Size:** `{params.get('size', 500)}px`  
-**Falloff:** `{params.get('falloff_type', 'gaussian')}`  
-**Sigma:** `{params.get('sigma', 0.30):.2f}` | **Intensity:** `{params.get('intensity', 1.0):.1f}`  
-**Edge:** blur `{params.get('edge_blur', 0.5):.1f}` | factor `{params.get('edge_factor', 0.5):.1f}`
-                            """)
-
-                            if st.button("Load", key=f"load_preset_{preset['name']}"):
-                                st.session_state.load_rendering_preset = params
-                                st.rerun()
-
-                            if st.button("Delete", key=f"delete_preset_{preset['name']}"):
-                                delete_rendering_preset(preset['name'])
-                                st.rerun()
-        else:
-            st.info("No rendering presets saved yet. Configure your preferred visual settings and click 'Save Current Settings'.")
 
     # Attribution Footer
     st.markdown("---")
