@@ -420,30 +420,6 @@ def delete_marshall_state(name: str) -> bool:
         return True
     return False
 
-def get_rendering_presets() -> List[Dict]:
-    """Get all rendering presets from session state (ephemeral)"""
-    if "rendering_presets" not in st.session_state:
-        st.session_state["rendering_presets"] = {}
-    return [{'name': name, 'data': data} for name, data in st.session_state["rendering_presets"].items()]
-
-def save_rendering_preset(name: str, params: Dict, thumbnail_base64: Optional[str] = None) -> bool:
-    """Save a rendering preset to session state with thumbnail (ephemeral)"""
-    if "rendering_presets" not in st.session_state:
-        st.session_state["rendering_presets"] = {}
-    
-    st.session_state["rendering_presets"][name] = {
-        'params': params,
-        'thumbnail': thumbnail_base64
-    }
-    return True
-
-def delete_rendering_preset(name: str) -> bool:
-    """Delete a rendering preset from session state (ephemeral)"""
-    if "rendering_presets" in st.session_state and name in st.session_state["rendering_presets"]:
-        del st.session_state["rendering_presets"][name]
-        return True
-    return False
-
 def generate_thumbnail(harmony_state: Dict, params: Dict, calibrated_white_point: Dict, size: int = 100) -> Optional[str]:
     """Generate a thumbnail of the current rendering as base64"""
     try:
@@ -491,16 +467,8 @@ def main():
         st.session_state.calibration_success = False
     if 'state_saved' not in st.session_state:
         st.session_state.state_saved = False
-    if 'rendering_preset_saved' not in st.session_state:
-        st.session_state.rendering_preset_saved = False
-    if 'preset_deleted' not in st.session_state:
-        st.session_state.preset_deleted = False
-    if 'load_rendering_preset' not in st.session_state:
-        st.session_state.load_rendering_preset = None
     if 'load_state' not in st.session_state:
         st.session_state.load_state = None
-    if 'reset_rendering' not in st.session_state:
-        st.session_state.reset_rendering = False
     if 'show_labeled' not in st.session_state:
         st.session_state.show_labeled = False
     if 'label_expanded' not in st.session_state:
@@ -535,27 +503,6 @@ def main():
         st.session_state.personalization_strength = 1.0
 
     calibrated_white_point = get_calibration()
-
-    # Handle preset loading and resets
-    if st.session_state.reset_rendering:
-        st.session_state.size = 1000
-        st.session_state.falloff_type = 'gaussian'
-        st.session_state.sigma = 0.30
-        st.session_state.intensity = 1.0
-        st.session_state.edge_blur = 0.5
-        st.session_state.edge_factor = 0.5
-        st.session_state.reset_rendering = False
-
-    if st.session_state.load_rendering_preset is not None:
-        params = st.session_state.load_rendering_preset
-        st.session_state.size = params.get('size', 500)
-        st.session_state.falloff_type = params.get('falloff_type', 'gaussian')
-        if params.get('falloff_type', 'gaussian') == 'gaussian':
-            st.session_state.sigma = params.get('sigma', 0.30)
-        st.session_state.intensity = params.get('intensity', 1.0)
-        st.session_state.edge_blur = params.get('edge_blur', 0.5)
-        st.session_state.edge_factor = params.get('edge_factor', 0.5)
-        st.session_state.load_rendering_preset = None
 
     if st.session_state.load_state is not None:
         harmony_state = st.session_state.load_state
