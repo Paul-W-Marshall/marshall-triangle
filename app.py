@@ -974,7 +974,7 @@ def main():
     st.markdown("""
     <div style="text-align: center; color: #888; font-size: 0.85em; padding: 1rem 0;">
         <strong>Marshall Triangle</strong><br/>
-        &copy; 2026 Fidelitas LLC. All rights reserved. | Author: Paul W. Marshall<br/>
+        &copy; 2026 <a href="https://linktr.ee/FidelitasLLC" target="_blank" style="color: #888;">Fidelitas LLC</a>. All rights reserved. | Author: <a href="https://paulwmarshall.com/" target="_blank" style="color: #888;">Paul W. Marshall</a><br/>
         <span style="font-size: 0.8em; opacity: 0.85;">
             Covered by pending Fidelitas LLC intellectual property filings. Built on the BDCN Architecture.
         </span><br/>
