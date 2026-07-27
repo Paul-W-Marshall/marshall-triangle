@@ -529,7 +529,7 @@ def main():
 
     # Initialize session state for rendering parameters if not present
     if 'size' not in st.session_state:
-        st.session_state.size = 1500
+        st.session_state.size = 500
     if 'falloff_type' not in st.session_state:
         st.session_state.falloff_type = 'gaussian'
     if 'sigma' not in st.session_state:
@@ -883,7 +883,7 @@ def main():
                         icon_params = state.get('icon_params', {})
                         st.markdown(f"""
 **State:** Pr: `{state['target']['r']:.2f}` | Pf: `{state['target']['g']:.2f}` | Ps: `{state['target']['b']:.2f}`  
-**Size:** `{icon_params.get('size', 1500)}px` | **Falloff:** `{icon_params.get('falloff_type', 'gaussian')}`  
+**Size:** `{icon_params.get('size', 500)}px` | **Falloff:** `{icon_params.get('falloff_type', 'gaussian')}`  
 **Sigma:** `{icon_params.get('sigma', 0.30):.2f}` | **Intensity:** `{icon_params.get('intensity', 1.0):.1f}`  
 **Edge:** blur `{icon_params.get('edge_blur', 0.5):.1f}` | factor `{icon_params.get('edge_factor', 0.5):.1f}`
                         """)
