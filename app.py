@@ -564,6 +564,12 @@ def main():
     geometric configuration with color sources at midpoints rather than vertices.
     """)
 
+    st.markdown("""
+**Paper:** [Marshall Triangle preprint v1.1.2](https://doi.org/10.5281/zenodo.20696528)  
+**Documentation:** [marshalltriangle.com](https://marshalltriangle.com)  
+**Source:** [GitHub repository](https://github.com/Paul-W-Marshall/marshall-triangle)
+    """)
+
     marshall_state = {
         'r': st.session_state.privacy_strength,
         'g': st.session_state.performance_strength,
@@ -903,13 +909,15 @@ def main():
     st.markdown("""
     <div style="text-align: center; color: #888; font-size: 0.85em; padding: 1rem 0;">
         <strong>Marshall Triangle</strong><br/>
-        &copy; 2026 <a href="https://linktr.ee/FidelitasLLC" target="_blank" style="color: #888;">Fidelitas LLC</a>. All rights reserved. | Author: <a href="https://paulwmarshall.com/" target="_blank" style="color: #888;">Paul W. Marshall</a><br/>
+        &copy; 2026 <a href="https://linktr.ee/FidelitasLLC" target="_blank" style="color: #888;">Fidelitas LLC</a>. Author: <a href="https://paulwmarshall.com/" target="_blank" style="color: #888;">Paul W. Marshall</a><br/>
         <span style="font-size: 0.8em; opacity: 0.85;">
-            Covered by pending Fidelitas LLC intellectual property filings. Built on the BDCN Architecture.
+            Related system architecture is disclosed in U.S. Utility Patent Application No. 19/734,975, claiming priority to U.S. Provisional Application No. 63/841,753.
         </span><br/>
+        <a href="https://doi.org/10.5281/zenodo.20696528" target="_blank" style="color: #888;">Preprint</a> |
+        <a href="https://marshalltriangle.com" target="_blank" style="color: #888;">Documentation</a> |
         <a href="https://github.com/Paul-W-Marshall/marshall-triangle" target="_blank" style="color: #888;">GitHub Repository</a><br/>
         <span style="font-size: 0.8em;">
-            Code: MIT | Figures: CC BY-NC 4.0 | Conceptual Framework: All Rights Reserved
+            Code: MIT | Figures: CC BY-NC 4.0 | Preprint: CC BY 4.0 | Conceptual framework: governed by Fidelitas LLC IP portfolio
         </span>
     </div>
     """, unsafe_allow_html=True)
