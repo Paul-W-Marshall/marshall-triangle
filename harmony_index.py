@@ -155,32 +155,38 @@ class HarmonyIndex:
         xg, yg = self._create_coordinate_grid()
         vertices = self._define_triangle()
         midpoints = self._calculate_midpoints(vertices)
-        colors = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-        red = np.zeros((self.size, self.size))
-        green = np.zeros_like(red)
-        blue = np.zeros_like(red)
-        mask = np.zeros_like(red, dtype=bool)
 
-        falloff = self._gaussian_falloff if falloff_type == 'gaussian' else self._inverse_square_falloff
+        # Vectorised coordinate arrays — y is flipped to match original pixel orientation
+        x_arr = xg                   # shape (size, size)
+        y_arr = np.flipud(yg)        # equivalent to: yg[size-1-i, j] per original loop
 
-        for i in range(self.size):
-            for j in range(self.size):
-                x, y = xg[i, j], yg[self.size - 1 - i, j]  # flip y to match image orientation
-                if self._is_inside_triangle(x, y, vertices):
-                    mask[i, j] = True
-                    for k, (mx, my) in enumerate(midpoints):
-                        val = falloff(x, y, mx, my)
-                        # Apply calibrated state weighting to each color channel
-                        if k == 0:  # Red (Privacy)
-                            weighted_val = val * normalized_state['r']
-                        elif k == 1:  # Green (Performance)
-                            weighted_val = val * normalized_state['g']
-                        else:  # Blue (Personalization)
-                            weighted_val = val * normalized_state['b']
-                        
-                        red[i, j] += colors[k][0] * weighted_val
-                        green[i, j] += colors[k][1] * weighted_val
-                        blue[i, j] += colors[k][2] * weighted_val
+        # --- Vectorised triangle membership test ---
+        # sign(p1, p2, p3) = (p1x-p3x)*(p2y-p3y) - (p2x-p3x)*(p1y-p3y)
+        v1, v2, v3 = vertices
+        d1 = (x_arr - v2[0]) * (v1[1] - v2[1]) - (v1[0] - v2[0]) * (y_arr - v2[1])
+        d2 = (x_arr - v3[0]) * (v2[1] - v3[1]) - (v2[0] - v3[0]) * (y_arr - v3[1])
+        d3 = (x_arr - v1[0]) * (v3[1] - v1[1]) - (v3[0] - v1[0]) * (y_arr - v1[1])
+        buffer = 0.005
+        mask = ~(((d1 < -buffer) | (d2 < -buffer) | (d3 < -buffer)) &
+                 ((d1 >  buffer) | (d2 >  buffer) | (d3 >  buffer)))
+
+        # --- Vectorised falloff & color accumulation ---
+        # colors are pure primaries: k=0→red only, k=1→green only, k=2→blue only
+        state_weights = [normalized_state['r'], normalized_state['g'], normalized_state['b']]
+        channel_arrays = []
+        for k, (mx, my) in enumerate(midpoints):
+            dist_sq = (x_arr - mx) ** 2 + (y_arr - my) ** 2
+            if falloff_type == 'gaussian':
+                sigma = self.sigma * 1.8
+                val = np.exp(-dist_sq / (2 * sigma ** 2)) * self.intensity
+            else:
+                val = self.intensity * 0.8 / (dist_sq + 0.05)
+            val[~mask] = 0.0          # zero pixels outside the triangle
+            channel_arrays.append(val * state_weights[k])
+
+        # channel_arrays[0] is the red contribution, [1] green, [2] blue
+        # (mirrors the original: colors[k] selects exactly one channel)
+        red, green, blue = channel_arrays
 
         edges = ndimage.binary_dilation(mask) & ~mask
         red[edges] *= self.edge_factor
