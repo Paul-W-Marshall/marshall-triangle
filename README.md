@@ -15,7 +15,7 @@ A geometric visualization framework for representing triadic balance in complex 
 | **Landing & Docs Site** | [marshalltriangle.com](https://marshalltriangle.com) |
 | **GitHub Repository** | [github.com/Paul-W-Marshall/marshall-triangle](https://github.com/Paul-W-Marshall/marshall-triangle) |
 | **Story Protocol IP** | [View on Story Explorer](https://explorer.story.foundation/ipa/0x8eE1e758dafc5Cb0Ee6D862D26eAF68eE33cf920) |
-| **Preprint / Archive** | [paper/Marshall_Triangle_Preprint_v1_1_1.pdf](./paper/Marshall_Triangle_Preprint_v1_1_1.pdf) · [doi.org/10.5281/zenodo.20696529](https://doi.org/10.5281/zenodo.20696529) |
+| **Preprint / Archive** | [paper/Marshall_Triangle_Preprint_v1_1_2.tex](./paper/Marshall_Triangle_Preprint_v1_1_2.tex) · [doi.org/10.5281/zenodo.20696528](https://doi.org/10.5281/zenodo.20696528) |
 
 ## Overview
 
@@ -62,18 +62,16 @@ The application is currently in a limited-access rollout phase. Public availabil
 
 ## Paper / Archive
 
-The revised preprint is included in this repository as the canonical archive source for the upcoming GitHub release and Zenodo DOI.
+The preprint is included in this repository as the canonical archive source for the GitHub release and Zenodo record.
 
 | File | Description |
 |------|-------------|
-| [`paper/Marshall_Triangle_Preprint_v1_1_1.pdf`](./paper/Marshall_Triangle_Preprint_v1_1_1.pdf) | Revised preprint — v1.1.1 |
-| [`paper/Marshall_Triangle_Preprint_v1_1_1.tex`](./paper/Marshall_Triangle_Preprint_v1_1_1.tex) | LaTeX source |
-| [`paper/Marshall_Triangle_Preprint_v1_1_1_LaTeX_Bundle.zip`](./paper/Marshall_Triangle_Preprint_v1_1_1_LaTeX_Bundle.zip) | Full LaTeX bundle (source + figures) |
+| [`paper/Marshall_Triangle_Preprint_v1_1_2.tex`](./paper/Marshall_Triangle_Preprint_v1_1_2.tex) | LaTeX source — v1.1.2 |
+| [`paper/Marshall_Triangle_Preprint_v1_1_2_LaTeX_Bundle.zip`](./paper/Marshall_Triangle_Preprint_v1_1_2_LaTeX_Bundle.zip) | Full LaTeX bundle (source + figures) — v1.1.2 |
+| [`paper/Marshall_Triangle_Preprint_v1_1_1.pdf`](./paper/Marshall_Triangle_Preprint_v1_1_1.pdf) | Compiled PDF — v1.1.1 (prior version) |
 
-This version reduces self-citation exposure, adds external scholarly references, and strengthens the mathematical formulation. It is prepared for:
-- GitHub release (this repository)
-- Zenodo DOI archive: [https://doi.org/10.5281/zenodo.20696529](https://doi.org/10.5281/zenodo.20696529)
-- Later Preprints.org resubmission
+- Zenodo DOI (all versions): [https://doi.org/10.5281/zenodo.20696528](https://doi.org/10.5281/zenodo.20696528)
+- Preprints.org resubmission pending
 
 **Figures** referenced in the paper are stored in [`figures/`](./figures/).
 
@@ -109,7 +107,7 @@ The MIT license applies **only** to the implementation code. Use of the Marshall
 
 If referencing this work in academic or commercial contexts:
 
-> Marshall, P.W. (2026). *Marshall Triangle: A Geometric Framework for Triadic Balance Visualization*. Fidelitas LLC.
+> Marshall, P. W. (2026). The Marshall Triangle: A Triadic Geometric Framework for Modeling Balance in Complex Systems (Version v1.1.2). Zenodo. https://doi.org/10.5281/zenodo.20696528
 
 ## Technical Details
 
