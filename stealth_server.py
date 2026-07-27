@@ -23,7 +23,7 @@ _ready_event = threading.Event()
 LOADING_PAGE = b"""<!DOCTYPE html>
 <html><head>
 <meta charset="utf-8">
-<meta http-equiv="refresh" content="3">
+<meta http-equiv="refresh" content="1">
 <title>Loading\xe2\x80\xa6</title>
 <style>
   body { font-family: sans-serif; display: flex; align-items: center;
