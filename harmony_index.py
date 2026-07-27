@@ -252,7 +252,7 @@ class HarmonyIndex:
         img.save(buf, format=format)
         return buf.getvalue()
         
-    def plot_with_labels(self, harmonyState: Optional[Dict[str, float]] = None, falloff_type='gaussian'):
+    def plot_with_labels(self, harmonyState: Optional[Dict[str, float]] = None, falloff_type='gaussian', prerendered_img=None):
         """
         Plot the Marshall Triangle with labels for vertices and midpoints.
         
@@ -269,7 +269,7 @@ class HarmonyIndex:
         fig : matplotlib.figure.Figure
             The matplotlib figure
         """
-        img = self.render(harmonyState=harmonyState, falloff_type=falloff_type)
+        img = prerendered_img if prerendered_img is not None else self.render(harmonyState=harmonyState, falloff_type=falloff_type)
         
         # Create figure with black background
         fig, ax = plt.subplots(figsize=(8, 8), facecolor='black')

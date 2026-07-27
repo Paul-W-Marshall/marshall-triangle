@@ -420,6 +420,53 @@ def delete_marshall_state(name: str) -> bool:
         return True
     return False
 
+@st.cache_data(show_spinner=False)
+def _cached_render_bytes(
+    r: float, g: float, b: float,
+    size: int,
+    sigma: float, intensity: float,
+    edge_blur: float, edge_factor: float,
+    falloff_type: str,
+    wp_r: float, wp_g: float, wp_b: float,
+) -> bytes:
+    """Render the Marshall Triangle to PNG bytes; result is cached by all input parameters."""
+    renderer = HarmonyIndex(
+        size=size, sigma=sigma, intensity=intensity,
+        edge_blur=edge_blur, edge_factor=edge_factor,
+    )
+    renderer.set_calibration({'r': wp_r, 'g': wp_g, 'b': wp_b})
+    return renderer.get_image_bytes(
+        harmonyState={'r': r, 'g': g, 'b': b},
+        falloff_type=falloff_type,
+    )
+
+
+@st.cache_data(show_spinner=False)
+def _cached_thumbnail_b64(
+    r: float, g: float, b: float,
+    base_sigma: float, intensity: float,
+    edge_blur: float, edge_factor: float,
+    falloff_type: str,
+    wp_r: float, wp_g: float, wp_b: float,
+    size: int = 100,
+) -> Optional[str]:
+    """Generate a thumbnail as base64; result is cached by all input parameters."""
+    try:
+        adaptive_sigma, _, _ = calculate_adaptive_sigma(base_sigma, r, g, b)
+        renderer = HarmonyIndex(
+            size=size, sigma=adaptive_sigma, intensity=intensity,
+            edge_blur=edge_blur, edge_factor=edge_factor,
+        )
+        renderer.set_calibration({'r': wp_r, 'g': wp_g, 'b': wp_b})
+        img_bytes = renderer.get_image_bytes(
+            harmonyState={'r': r, 'g': g, 'b': b},
+            falloff_type=falloff_type,
+        )
+        return base64.b64encode(img_bytes).decode('utf-8')
+    except Exception:
+        return None
+
+
 def generate_thumbnail(harmony_state: Dict, params: Dict, calibrated_white_point: Dict, size: int = 100) -> Optional[str]:
     """Generate a thumbnail of the current rendering as base64"""
     try:
@@ -539,6 +586,19 @@ def main():
     
     sigma = adaptive_sigma
 
+    # Render once; all display and export paths share this cached result.
+    # Cache key covers every parameter that affects pixel output.
+    _cached_img_bytes = _cached_render_bytes(
+        r=marshall_state['r'], g=marshall_state['g'], b=marshall_state['b'],
+        size=size, sigma=sigma, intensity=intensity,
+        edge_blur=edge_blur, edge_factor=edge_factor,
+        falloff_type=falloff_type,
+        wp_r=calibrated_white_point['r'],
+        wp_g=calibrated_white_point['g'],
+        wp_b=calibrated_white_point['b'],
+    )
+    _cached_img = Image.open(io.BytesIO(_cached_img_bytes))
+
     if st.session_state.calibration_success:
         st.success("Calibration applied! The visualization now treats your selected state as the balanced reference point.")
         st.session_state.calibration_success = False
@@ -595,7 +655,7 @@ def main():
     # Determine layout based on show_labeled and label_expanded states
     if show_labeled and st.session_state.label_expanded:
         # Full-width expanded mode for labeled diagram
-        fig = harmony.plot_with_labels(harmonyState=marshall_state, falloff_type=falloff_type)
+        fig = harmony.plot_with_labels(harmonyState=marshall_state, falloff_type=falloff_type, prerendered_img=_cached_img)
         st.markdown('<div class="mt-protected-plot">', unsafe_allow_html=True)
         st.pyplot(fig)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -609,9 +669,7 @@ def main():
         # Unified Render Settings Summary below diagram
         render_settings_summary()
         
-        buf = io.BytesIO()
-        img_export = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
-        img_export.save(buf, format='PNG')
+        buf = io.BytesIO(_cached_img_bytes)
         _render_download_gate(buf, key_suffix="expanded")
     else:
         # Side-by-side column layout (collapsed labeled or unlabeled)
@@ -619,7 +677,7 @@ def main():
 
         with col1:
             if show_labeled:
-                fig = harmony.plot_with_labels(harmonyState=marshall_state, falloff_type=falloff_type)
+                fig = harmony.plot_with_labels(harmonyState=marshall_state, falloff_type=falloff_type, prerendered_img=_cached_img)
                 st.markdown('<div class="mt-protected-plot">', unsafe_allow_html=True)
                 st.pyplot(fig)
                 st.markdown('</div>', unsafe_allow_html=True)
@@ -630,15 +688,12 @@ def main():
                     st.session_state.label_expanded = True
                     st.rerun()
             else:
-                img = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
-                _render_protected_image(img)
+                _render_protected_image(_cached_img)
 
         with col2:
             render_settings_summary()
 
-            buf = io.BytesIO()
-            img_export = harmony.render(harmonyState=marshall_state, falloff_type=falloff_type)
-            img_export.save(buf, format='PNG')
+            buf = io.BytesIO(_cached_img_bytes)
             _render_download_gate(buf, key_suffix="sidebar")
 
     # Tab selection with persistence using radio buttons styled as tabs
@@ -777,7 +832,18 @@ def main():
                     'g': st.session_state.performance_strength,
                     'b': st.session_state.personalization_strength
                 }
-                thumbnail = generate_thumbnail(state_to_save, current_params, calibrated_white_point, size=100)
+                thumbnail = _cached_thumbnail_b64(
+                    r=state_to_save['r'], g=state_to_save['g'], b=state_to_save['b'],
+                    base_sigma=current_params['sigma'],
+                    intensity=current_params['intensity'],
+                    edge_blur=current_params['edge_blur'],
+                    edge_factor=current_params['edge_factor'],
+                    falloff_type=current_params['falloff_type'],
+                    wp_r=calibrated_white_point['r'],
+                    wp_g=calibrated_white_point['g'],
+                    wp_b=calibrated_white_point['b'],
+                    size=100,
+                )
                 save_marshall_state(
                     state_name, 
                     current_params, 
