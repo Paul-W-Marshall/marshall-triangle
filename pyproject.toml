@@ -4,13 +4,14 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
+    "click>=8.4.2",
     "fonttools>=4.57.0",
-    "gitpython>=3.1.45",
+    "gitpython>=3.1.57",
     "h11>=0.16.0",
     "idna>=3.11",
     "matplotlib~=3.10",
     "numpy~=2.2",
-    "pillow==12.2.0",
+    "pillow>=12.3.0",
     "protobuf==6.33.5",
     "pyarrow~=24.0",
     "requests>=2.32.4",
