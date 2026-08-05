@@ -72,7 +72,7 @@ The preprint is included in this repository as the canonical archive source for 
 | [`paper/Marshall_Triangle_Preprint_v1_1_1.pdf`](./paper/Marshall_Triangle_Preprint_v1_1_1.pdf) | Compiled PDF — v1.1.1 (prior version) |
 
 - Zenodo DOI (all versions): [https://doi.org/10.5281/zenodo.20696528](https://doi.org/10.5281/zenodo.20696528)
-- Preprints.org resubmission pending
+- Preprints.org submission declined (prior Zenodo publication); Zenodo is the canonical archive.
 
 **Figures** referenced in the paper are stored in [`figures/`](./figures/).
 
