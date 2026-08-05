@@ -74,6 +74,44 @@ def _reset_attempts(ip: str) -> None:
     _lockouts.pop(ip, None)
 
 
+# ---------------------------------------------------------------------------
+# Per-IP rate limiting (in-memory, sliding window)
+# ---------------------------------------------------------------------------
+_RATE_LIMIT_RPS   = int(os.environ.get("RATE_LIMIT_RPS",   "10"))  # max req/s sustained
+_RATE_LIMIT_BURST = int(os.environ.get("RATE_LIMIT_BURST", "30"))  # max req in 5 s window
+
+# Maps IP -> deque of request timestamps (epoch floats)
+_rate_timestamps: dict = collections.defaultdict(collections.deque)
+
+def _is_rate_limited(ip: str) -> bool:
+    """Sliding-window rate limiter.
+
+    Returns True (block) if the IP has exceeded either:
+      - _RATE_LIMIT_RPS requests in the last 1 second, OR
+      - _RATE_LIMIT_BURST requests in the last 5 seconds.
+    """
+    now = time.time()
+    dq = _rate_timestamps[ip]
+
+    # Prune entries older than 5 seconds (longest window we care about)
+    cutoff5 = now - 5.0
+    while dq and dq[0] < cutoff5:
+        dq.popleft()
+
+    # Count requests in the last 5 s (burst window)
+    burst_count = len(dq)
+
+    # Count requests in the last 1 s (sustained window)
+    cutoff1 = now - 1.0
+    rps_count = sum(1 for t in dq if t >= cutoff1)
+
+    if rps_count >= _RATE_LIMIT_RPS or burst_count >= _RATE_LIMIT_BURST:
+        return True
+
+    dq.append(now)
+    return False
+
+
 STREAMLIT_HEALTH = f"http://127.0.0.1:{STREAMLIT_PORT}/_stcore/health"
 
 _streamlit_ready = False
@@ -182,6 +220,15 @@ class ProxyHandler(tornado.web.RequestHandler):
     async def options(self, path=""):   await self._handle(path)
 
     async def _handle(self, path):
+        # Rate-limit check before any proxying
+        ip = _extract_real_ip(self.request)
+        if _is_rate_limited(ip):
+            self.set_status(429)
+            self.set_header("Retry-After", "1")
+            self.set_header("Content-Type", "application/json")
+            self.write('{"error":"rate_limit_exceeded"}')
+            return
+
         if not _streamlit_ready:
             self.set_status(200)
             self.set_header("Content-Type", "text/html; charset=utf-8")
