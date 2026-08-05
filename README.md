@@ -15,7 +15,7 @@ A geometric visualization framework for representing triadic balance in complex 
 | **Landing & Docs Site** | [marshalltriangle.com](https://marshalltriangle.com) |
 | **GitHub Repository** | [github.com/Paul-W-Marshall/marshall-triangle](https://github.com/Paul-W-Marshall/marshall-triangle) |
 | **Story Protocol IP** | [View on Story Explorer](https://explorer.story.foundation/ipa/0x8eE1e758dafc5Cb0Ee6D862D26eAF68eE33cf920) |
-| **Preprint / Archive** | [paper/Marshall_Triangle_Preprint_v1_1_2.pdf](./paper/Marshall_Triangle_Preprint_v1_1_2.pdf) · [doi.org/10.5281/zenodo.20696528](https://doi.org/10.5281/zenodo.20696528) |
+| **Preprint / Archive** | [Zenodo DOI: 10.5281/zenodo.20696528](https://doi.org/10.5281/zenodo.20696528) |
 
 ## Overview
 
@@ -62,19 +62,17 @@ The application is currently in a limited-access rollout phase. Public availabil
 
 ## Paper / Archive
 
-The preprint is included in this repository as the canonical archive source for the GitHub release and Zenodo record.
+The Marshall Triangle preprint is formally archived at Zenodo as version v1.1.2.
 
-| File | Description |
-|------|-------------|
-| [`paper/Marshall_Triangle_Preprint_v1_1_2.pdf`](./paper/Marshall_Triangle_Preprint_v1_1_2.pdf) | Compiled PDF — v1.1.2 |
-| [`paper/Marshall_Triangle_Preprint_v1_1_2.tex`](./paper/Marshall_Triangle_Preprint_v1_1_2.tex) | LaTeX source — v1.1.2 |
-| [`paper/Marshall_Triangle_Preprint_v1_1_2_LaTeX_Bundle.zip`](./paper/Marshall_Triangle_Preprint_v1_1_2_LaTeX_Bundle.zip) | Full LaTeX bundle (source + figures) — v1.1.2 |
-| [`paper/Marshall_Triangle_Preprint_v1_1_1.pdf`](./paper/Marshall_Triangle_Preprint_v1_1_1.pdf) | Compiled PDF — v1.1.1 (prior version) |
+> Marshall, P. W. (2026). The Marshall Triangle: A Triadic Geometric Framework for Modeling Balance in Complex Systems (Version v1.1.2). Zenodo. https://doi.org/10.5281/zenodo.20696528
 
-- Zenodo DOI (all versions): [https://doi.org/10.5281/zenodo.20696528](https://doi.org/10.5281/zenodo.20696528)
-- Preprints.org submission declined (prior Zenodo publication); Zenodo is the canonical archive.
+| Resource | Link |
+|----------|------|
+| **Zenodo record** | [doi.org/10.5281/zenodo.20696528](https://doi.org/10.5281/zenodo.20696528) |
+| **GitHub release** | [v1.1.2](https://github.com/Paul-W-Marshall/marshall-triangle/releases/tag/v1.1.2) |
+| **Figures** | [`figures/`](./figures/) |
 
-**Figures** referenced in the paper are stored in [`figures/`](./figures/).
+v1.1.2 is the canonical release of the Marshall Triangle preprint, incorporating refined rendering parameters, updated sigma documentation, and full alignment with the Zenodo archive record. Zenodo is the canonical archive; Preprints.org submission was declined due to prior Zenodo publication.
 
 ## Licensing & Attribution
 
