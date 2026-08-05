@@ -4,6 +4,8 @@ import sys
 import time
 import threading
 import urllib.request
+import json
+import collections
 
 import tornado.ioloop
 import tornado.web
@@ -15,6 +17,63 @@ import tornado.gen
 
 STREAMLIT_PORT = 8501
 PROXY_PORT = 5000
+
+# ---------------------------------------------------------------------------
+# Download-code validation state (in-memory, single-process)
+# ---------------------------------------------------------------------------
+_MAX_ATTEMPTS   = 5          # failed attempts before lockout
+_WINDOW_SECONDS = 15 * 60   # rolling window: 15 minutes
+_LOCKOUT_SECONDS = 15 * 60  # how long the lockout lasts
+
+# Maps IP -> deque of failure timestamps (epoch floats)
+_failed_attempts: dict = collections.defaultdict(collections.deque)
+# Maps IP -> lockout-expiry timestamp (epoch float); absent means not locked
+_lockouts: dict = {}
+
+_INTERNAL_IP_HEADER = "X-Replit-Client-IP"   # injected by Tornado; never trusted from clients
+
+def _extract_real_ip(request) -> str:
+    """Return the real client IP from X-Forwarded-For (last entry, set by Replit's ingress).
+
+    Replit's ingress layer *appends* the real client IP to X-Forwarded-For, so
+    reading the last entry defeats header-injection attempts from the client.
+    Falls back to request.remote_ip when no XFF header is present (local dev).
+    """
+    xff = request.headers.get("X-Forwarded-For", "")
+    if xff:
+        # Last entry is added by the closest trusted proxy (Replit's ingress)
+        return xff.split(",")[-1].strip()
+    return request.remote_ip or "unknown"
+
+def _is_locked_out(ip: str) -> float:
+    """Return seconds remaining in lockout, or 0 if not locked out."""
+    expiry = _lockouts.get(ip, 0)
+    remaining = expiry - time.time()
+    if remaining > 0:
+        return remaining
+    # Expired — clean up
+    _lockouts.pop(ip, None)
+    return 0
+
+def _record_failure(ip: str) -> None:
+    """Record a failed attempt; impose lockout if threshold exceeded."""
+    now = time.time()
+    dq = _failed_attempts[ip]
+    # Prune entries outside the rolling window
+    cutoff = now - _WINDOW_SECONDS
+    while dq and dq[0] < cutoff:
+        dq.popleft()
+    dq.append(now)
+    if len(dq) >= _MAX_ATTEMPTS:
+        _lockouts[ip] = now + _LOCKOUT_SECONDS
+        dq.clear()
+
+def _reset_attempts(ip: str) -> None:
+    """Clear failure history on successful validation."""
+    _failed_attempts.pop(ip, None)
+    _lockouts.pop(ip, None)
+
+
 STREAMLIT_HEALTH = f"http://127.0.0.1:{STREAMLIT_PORT}/_stcore/health"
 
 _streamlit_ready = False
@@ -53,6 +112,64 @@ class HealthHandler(tornado.web.RequestHandler):
         self.write("ok" if _streamlit_ready else "starting")
 
 
+class ValidateCodeHandler(tornado.web.RequestHandler):
+    """POST /api/validate-code — server-side download-code validation with rate limiting."""
+
+    def set_default_headers(self):
+        self.set_header("Content-Type", "application/json")
+
+    def post(self):
+        # Only allow calls from localhost (Streamlit). External callers get 403
+        # so they cannot probe the endpoint or spoof the client-IP header.
+        if self.request.remote_ip not in ("127.0.0.1", "::1"):
+            self.set_status(403)
+            self.write(json.dumps({"ok": False, "error": "forbidden"}))
+            return
+
+        # Read the real client IP that Streamlit extracted from X-Replit-Client-IP
+        # (which Tornado injected; the client can never supply it directly).
+        ip = self.request.headers.get("X-Client-IP", "unknown")
+        if not ip or ip == "unknown":
+            self.set_status(400)
+            self.write(json.dumps({"ok": False, "error": "missing_client_ip"}))
+            return
+
+        # Check lockout first
+        remaining = _is_locked_out(ip)
+        if remaining > 0:
+            retry_after = int(remaining) + 1
+            self.set_header("Retry-After", str(retry_after))
+            self.set_status(429)
+            self.write(json.dumps({
+                "ok": False,
+                "error": "too_many_attempts",
+                "retry_after": retry_after,
+            }))
+            return
+
+        # Parse submitted code
+        try:
+            body = json.loads(self.request.body)
+            submitted = str(body.get("code", "")).strip()
+        except (ValueError, TypeError):
+            self.set_status(400)
+            self.write(json.dumps({"ok": False, "error": "bad_request"}))
+            return
+
+        # Load valid codes from environment secret (comma-separated list supported)
+        raw_secret = os.environ.get("DOWNLOAD_CODE", "")
+        valid_codes = {c.strip() for c in raw_secret.split(",") if c.strip()}
+
+        if submitted and submitted in valid_codes:
+            _reset_attempts(ip)
+            self.set_status(200)
+            self.write(json.dumps({"ok": True}))
+        else:
+            _record_failure(ip)
+            self.set_status(401)
+            self.write(json.dumps({"ok": False, "error": "invalid_code"}))
+
+
 class ProxyHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS")
 
@@ -78,8 +195,10 @@ class ProxyHandler(tornado.web.RequestHandler):
             url += "?" + self.request.query
         headers = {
             k: v for k, v in self.request.headers.get_all()
-            if k.lower() not in ("connection",)
+            if k.lower() not in ("connection", _INTERNAL_IP_HEADER.lower())
         }
+        # Inject trusted real client IP so Streamlit can use it for rate-limiting
+        headers[_INTERNAL_IP_HEADER] = _extract_real_ip(self.request)
         client = tornado.httpclient.AsyncHTTPClient()
         try:
             resp = await client.fetch(
@@ -138,11 +257,14 @@ class WSProxyHandler(tornado.websocket.WebSocketHandler):
             "connection", "upgrade",
             "sec-websocket-key", "sec-websocket-version",
             "sec-websocket-extensions", "sec-websocket-protocol",
+            _INTERNAL_IP_HEADER.lower(),   # strip any client-supplied value
         }
         forward = tornado.httputil.HTTPHeaders()
         for k, v in self.request.headers.get_all():
             if k.lower() not in skip:
                 forward.add(k, v)
+        # Inject trusted real client IP so st.context.headers sees it
+        forward[_INTERNAL_IP_HEADER] = _extract_real_ip(self.request)
         # Ensure downstream knows the public scheme
         if "X-Forwarded-Proto" not in forward:
             forward["X-Forwarded-Proto"] = "https"
@@ -194,8 +316,9 @@ def start_streamlit():
 def make_app():
     return tornado.web.Application([
         (r"/_stcore/stream(?:.*)", WSProxyHandler),
-        (r"/healthz",             HealthHandler),
-        (r"/(.*)",                ProxyHandler),
+        (r"/healthz",              HealthHandler),
+        (r"/api/validate-code",    ValidateCodeHandler),
+        (r"/(.*)",                 ProxyHandler),
     ])
 
 

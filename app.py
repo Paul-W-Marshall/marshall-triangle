@@ -23,7 +23,9 @@ from PIL import Image
 import io
 import base64
 import time
-import re
+import urllib.request
+import urllib.error
+import json
 from typing import Dict, Optional, List, Any
 
 def custom_css():
@@ -336,9 +338,60 @@ def calculate_adaptive_sigma(base_sigma: float, r: float, g: float, b: float) ->
     
     return (required_sigma, imbalance, True)
 
-def is_valid_download_code(code: str) -> bool:
-    """Return True if code matches the pattern magicword followed by exactly 2 digits."""
-    return bool(re.match(r'^magicword\d{2}$', code.strip()))
+_LOCKOUT_SECONDS = 15 * 60  # kept in sync with stealth_server.py constant
+_INTERNAL_IP_HEADER = "X-Replit-Client-IP"  # injected by Tornado proxy; never client-writable
+
+def _get_real_client_ip() -> str:
+    """Read the trusted real-client IP that the Tornado proxy injected into request headers.
+
+    Tornado strips any client-supplied X-Replit-Client-IP value before forwarding to
+    Streamlit, then injects the last (Replit-ingress-appended) X-Forwarded-For entry.
+    Falls back to "unknown" when running outside the proxy (tests, local dev).
+    """
+    try:
+        return st.context.headers.get(_INTERNAL_IP_HEADER, "unknown")
+    except Exception:
+        return "unknown"
+
+def _validate_download_code_via_api(code: str) -> tuple:
+    """POST to the Tornado validation endpoint.
+
+    The real client IP is read from the trusted header injected by the Tornado proxy
+    and forwarded to the endpoint, which only accepts calls from localhost.
+
+    Returns (ok: bool, error: str)  where error is one of:
+      ''               — success
+      'invalid_code'   — wrong code
+      'too_many_attempts:<secs>' — IP locked out
+      'network_error'  — could not reach the endpoint
+    """
+    client_ip = _get_real_client_ip()
+    try:
+        payload = json.dumps({"code": code}).encode()
+        req = urllib.request.Request(
+            "http://127.0.0.1:5000/api/validate-code",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "X-Client-IP": client_ip,
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            body = json.loads(resp.read())
+            return (body.get("ok", False), "")
+    except urllib.error.HTTPError as e:
+        try:
+            body = json.loads(e.read())
+        except Exception:
+            body = {}
+        err = body.get("error", "invalid_code")
+        if err == "too_many_attempts":
+            retry = body.get("retry_after", _LOCKOUT_SECONDS)
+            return (False, f"too_many_attempts:{retry}")
+        return (False, err)
+    except Exception:
+        return (False, "network_error")
 
 def _render_protected_image(img) -> None:
     """Render a PIL image as a base64-encoded HTML img tag wrapped in a no-save overlay."""
@@ -371,10 +424,22 @@ def _render_download_gate(buf: io.BytesIO, key_suffix: str = "") -> None:
             label_visibility="visible",
         )
         if st.button("Unlock Download", key=f"dl_submit_{key_suffix}"):
-            if is_valid_download_code(code_input):
+            ok, err = _validate_download_code_via_api(code_input)
+            if ok:
                 st.session_state.download_code_valid = True
                 st.session_state.download_code_input = code_input.strip()
                 st.rerun()
+            elif err.startswith("too_many_attempts"):
+                try:
+                    secs = int(err.split(":")[1])
+                    mins = (secs + 59) // 60
+                except (IndexError, ValueError):
+                    mins = 15
+                st.error(
+                    f"Too many failed attempts. Please wait {mins} minute(s) before trying again."
+                )
+            elif err == "network_error":
+                st.error("Could not reach the validation service. Please try again shortly.")
             else:
                 st.error("Invalid code. Please check and try again.")
         st.markdown(
