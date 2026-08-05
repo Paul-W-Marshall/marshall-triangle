@@ -15,7 +15,7 @@ A geometric visualization framework for representing triadic balance in complex 
 | **Landing & Docs Site** | [marshalltriangle.com](https://marshalltriangle.com) |
 | **GitHub Repository** | [github.com/Paul-W-Marshall/marshall-triangle](https://github.com/Paul-W-Marshall/marshall-triangle) |
 | **Story Protocol IP** | [View on Story Explorer](https://explorer.story.foundation/ipa/0x8eE1e758dafc5Cb0Ee6D862D26eAF68eE33cf920) |
-| **Preprint / Archive** | [paper/Marshall_Triangle_Preprint_v1_1_2.tex](./paper/Marshall_Triangle_Preprint_v1_1_2.tex) · [doi.org/10.5281/zenodo.20696528](https://doi.org/10.5281/zenodo.20696528) |
+| **Preprint / Archive** | [paper/Marshall_Triangle_Preprint_v1_1_2.pdf](./paper/Marshall_Triangle_Preprint_v1_1_2.pdf) · [doi.org/10.5281/zenodo.20696528](https://doi.org/10.5281/zenodo.20696528) |
 
 ## Overview
 
@@ -66,6 +66,7 @@ The preprint is included in this repository as the canonical archive source for 
 
 | File | Description |
 |------|-------------|
+| [`paper/Marshall_Triangle_Preprint_v1_1_2.pdf`](./paper/Marshall_Triangle_Preprint_v1_1_2.pdf) | Compiled PDF — v1.1.2 |
 | [`paper/Marshall_Triangle_Preprint_v1_1_2.tex`](./paper/Marshall_Triangle_Preprint_v1_1_2.tex) | LaTeX source — v1.1.2 |
 | [`paper/Marshall_Triangle_Preprint_v1_1_2_LaTeX_Bundle.zip`](./paper/Marshall_Triangle_Preprint_v1_1_2_LaTeX_Bundle.zip) | Full LaTeX bundle (source + figures) — v1.1.2 |
 | [`paper/Marshall_Triangle_Preprint_v1_1_1.pdf`](./paper/Marshall_Triangle_Preprint_v1_1_1.pdf) | Compiled PDF — v1.1.1 (prior version) |
