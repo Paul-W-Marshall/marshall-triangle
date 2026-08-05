@@ -46,8 +46,6 @@ Key characteristics:
 | **Landing & Docs Site** | Static explanatory and documentary surface — [marshalltriangle.com](https://marshalltriangle.com) | Active |
 | **GitHub Repo** | Canonical technical source | Active |
 
-The application is currently in a limited-access rollout phase. Public availability will be announced via the landing site.
-
 ## Key Files
 
 | File | Purpose |
