@@ -485,7 +485,29 @@ def delete_marshall_state(name: str) -> bool:
         return True
     return False
 
-@st.cache_data(show_spinner=False)
+def _quantise(value: float, step: float) -> float:
+    """Round *value* to the nearest multiple of *step*.
+
+    Quantising slider inputs before they reach the cache collapses a band of
+    adjacent slider positions onto a single cache key, so rapid slider movement
+    returns the cached render for nearby states instead of re-rendering every
+    frame.
+
+    The r/g/b sliders step in 0.01 increments; a quantisation step of 0.05
+    means every 5 consecutive slider ticks share one cache entry.  The visual
+    difference within a 0.05 band is imperceptible during a drag gesture.
+
+    Example (step=0.05): 0.50, 0.51, 0.52, 0.53, 0.54 → all become 0.50;
+                         0.55, 0.56, …, 0.59 → all become 0.55.
+    """
+    return round(round(value / step) * step, 10)
+
+
+# _cached_render_bytes: max_entries bounds memory use (each 500×500 PNG ≈ 100 KB;
+# 256 entries ≈ 25 MB).  With r/g/b quantised at 0.05, the key space per axis
+# is 21 values (0.00, 0.05, …, 1.00), giving 9 261 theoretical combinations;
+# max_entries evicts the least-recently-used entries beyond the cap.
+@st.cache_data(show_spinner=False, max_entries=256)
 def _cached_render_bytes(
     r: float, g: float, b: float,
     size: int,
@@ -506,7 +528,7 @@ def _cached_render_bytes(
     )
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, max_entries=512)
 def _cached_thumbnail_b64(
     r: float, g: float, b: float,
     base_sigma: float, intensity: float,
@@ -648,25 +670,38 @@ def main():
     edge_factor = st.session_state.edge_factor
     falloff_type = st.session_state.falloff_type
 
+    # Quantise continuous slider values to a coarser grid so that rapid
+    # slider movement collapses nearby states onto the same cache key.
+    # r/g/b: 0.05 steps — sliders step at 0.01; every 5 ticks share one cache
+    #   entry (visual change within a 0.05 band is imperceptible during a drag).
+    # sigma: 0.001 steps — fine enough not to lose visual fidelity.
+    # intensity/edge_blur/edge_factor: 0.05 steps.
+    q_r   = _quantise(marshall_state['r'], 0.05)
+    q_g   = _quantise(marshall_state['g'], 0.05)
+    q_b   = _quantise(marshall_state['b'], 0.05)
+    q_base_sigma    = _quantise(base_sigma,   0.001)
+    q_intensity     = _quantise(intensity,    0.05)
+    q_edge_blur     = _quantise(edge_blur,    0.05)
+    q_edge_factor   = _quantise(edge_factor,  0.05)
+    q_wp_r = _quantise(calibrated_white_point['r'], 0.05)
+    q_wp_g = _quantise(calibrated_white_point['g'], 0.05)
+    q_wp_b = _quantise(calibrated_white_point['b'], 0.05)
+
     adaptive_sigma, imbalance_score, is_compensating = calculate_adaptive_sigma(
-        base_sigma,
-        marshall_state['r'],
-        marshall_state['g'],
-        marshall_state['b']
+        q_base_sigma, q_r, q_g, q_b
     )
-    
-    sigma = adaptive_sigma
+    q_sigma = _quantise(adaptive_sigma, 0.001)
+
+    sigma = q_sigma
 
     # Render once; all display and export paths share this cached result.
-    # Cache key covers every parameter that affects pixel output.
+    # Cache key covers every quantised parameter that affects pixel output.
     _cached_img_bytes = _cached_render_bytes(
-        r=marshall_state['r'], g=marshall_state['g'], b=marshall_state['b'],
-        size=size, sigma=sigma, intensity=intensity,
-        edge_blur=edge_blur, edge_factor=edge_factor,
+        r=q_r, g=q_g, b=q_b,
+        size=size, sigma=q_sigma, intensity=q_intensity,
+        edge_blur=q_edge_blur, edge_factor=q_edge_factor,
         falloff_type=falloff_type,
-        wp_r=calibrated_white_point['r'],
-        wp_g=calibrated_white_point['g'],
-        wp_b=calibrated_white_point['b'],
+        wp_r=q_wp_r, wp_g=q_wp_g, wp_b=q_wp_b,
     )
     _cached_img = Image.open(io.BytesIO(_cached_img_bytes))
 

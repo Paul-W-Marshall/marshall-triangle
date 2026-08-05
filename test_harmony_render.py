@@ -12,17 +12,48 @@ Strategy
    of harmonyState (triangle painted, dominant hue near each midpoint,
    exterior pixels black, etc.).
 
+3. Cache-key quantisation tests verify that adjacent slider steps within the
+   same 0.05 bucket produce identical quantised values (cache hits), while
+   steps crossing a bucket boundary produce distinct values (cache misses).
+
 Run:
     python -m pytest test_harmony_render.py -v
 """
 
 import itertools
+import sys
+import types
+import unittest.mock as mock
 import numpy as np
 import pytest
 from PIL import Image, ImageFilter
 from scipy import ndimage
 
 from harmony_index import HarmonyIndex
+
+# ---------------------------------------------------------------------------
+# Stub streamlit so app.py can be imported without a running Streamlit server
+# ---------------------------------------------------------------------------
+
+def _make_streamlit_stub():
+    """Return a minimal MagicMock that satisfies app.py's top-level imports."""
+    st = mock.MagicMock()
+    # cache_data must return a decorator that passes the function through
+    def _cache_data(*args, **kwargs):
+        def _decorator(fn):
+            return fn
+        # Handle both @st.cache_data and @st.cache_data(...) call styles
+        if len(args) == 1 and callable(args[0]) and not kwargs:
+            return args[0]
+        return _decorator
+    st.cache_data = _cache_data
+    return st
+
+_st_stub = _make_streamlit_stub()
+sys.modules.setdefault("streamlit", _st_stub)
+
+# Import _quantise after the stub is in place
+from app import _quantise  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -348,3 +379,126 @@ def test_extreme_slider_positions_do_not_crash(state):
     arr = _render_arr(hi, state)
     assert arr.shape == (SIZE, SIZE, 3)
     assert not np.isnan(arr).any(), f"NaN values in output for state={state}"
+
+
+# ---------------------------------------------------------------------------
+# 10. _quantise — cache-key quantisation helper
+#
+#  The sliders step at 0.01; we quantise r/g/b at 0.05 so that 5 consecutive
+#  slider ticks collapse onto a single cache key.  The tests below confirm:
+#    (a) values within the same 0.05 bucket → identical quantised key
+#    (b) values in adjacent buckets         → distinct quantised keys
+#    (c) bucket edges (0.00, 0.05, …, 1.00) → exact multiples of 0.05
+#    (d) renders produced from the same quantised key are byte-identical
+# ---------------------------------------------------------------------------
+
+class TestQuantise:
+    """Unit tests for _quantise(value, step)."""
+
+    STEP = 0.05   # the step used for r/g/b in app.py
+
+    # (a) — within-bucket collapse
+    #
+    # With step=0.05 each bucket covers a ±0.025 range around its centre.
+    # Slider values at 0.01 increments that fall within a bucket:
+    #   bucket 0.50  → [0.475, 0.525)  → slider ticks: 0.48 0.49 0.50 0.51 0.52
+    #   bucket 0.55  → [0.525, 0.575)  → slider ticks: 0.53 0.54 0.55 0.56 0.57
+    #   bucket 0.60  → [0.575, 0.625)  → slider ticks: 0.58 0.59 0.60 0.61 0.62
+    @pytest.mark.parametrize("raw,expected", [
+        # bucket 0.50: values within ±0.02 of 0.50
+        (0.50, 0.50), (0.51, 0.50), (0.52, 0.50),
+        (0.49, 0.50), (0.48, 0.50),
+        # bucket 0.55: 0.53, 0.54 are >0.025 away from 0.50 → land in 0.55
+        (0.53, 0.55), (0.54, 0.55), (0.55, 0.55), (0.56, 0.55), (0.57, 0.55),
+        # bucket 0.60: 0.58 and 0.59 are >0.025 away from 0.55
+        (0.58, 0.60), (0.59, 0.60),
+        # exact multiples and endpoints
+        (0.00, 0.00), (1.00, 1.00),
+    ])
+    def test_within_bucket_collapse(self, raw, expected):
+        result = _quantise(raw, self.STEP)
+        assert abs(result - expected) < 1e-9, (
+            f"_quantise({raw}, {self.STEP}) = {result}, expected {expected}"
+        )
+
+    # (b) — adjacent buckets produce distinct keys
+    @pytest.mark.parametrize("a, b", [
+        (0.50, 0.55),
+        (0.00, 0.05),
+        (0.95, 1.00),
+        (0.20, 0.25),
+    ])
+    def test_adjacent_buckets_are_distinct(self, a, b):
+        qa = _quantise(a, self.STEP)
+        qb = _quantise(b, self.STEP)
+        assert abs(qa - qb) > 1e-9, (
+            f"_quantise({a}) == _quantise({b}) == {qa}; expected distinct keys"
+        )
+
+    # (c) — exact multiples pass through unchanged
+    @pytest.mark.parametrize("exact", [v / 20 for v in range(21)])  # 0.00 … 1.00
+    def test_exact_multiples_are_identity(self, exact):
+        result = _quantise(exact, self.STEP)
+        assert abs(result - exact) < 1e-9, (
+            f"_quantise({exact}, {self.STEP}) = {result}; expected {exact}"
+        )
+
+
+class TestQuantisedRendersMatchCacheKey:
+    """
+    Confirm that two slider values that quantise to the same bucket produce
+    byte-identical renders (i.e. would always hit the same cache entry), while
+    values in different buckets produce distinct renders.
+    """
+
+    STEP = 0.05
+    RENDER_SIZE = 100   # small for speed
+
+    def _render_bytes(self, r: float, g: float, b: float) -> bytes:
+        """Render via HarmonyIndex using quantised r/g/b, return PNG bytes."""
+        import io as _io
+        qr = _quantise(r, self.STEP)
+        qg = _quantise(g, self.STEP)
+        qb = _quantise(b, self.STEP)
+        hi = HarmonyIndex(size=self.RENDER_SIZE)
+        img = hi.render(harmonyState={"r": qr, "g": qg, "b": qb})
+        buf = _io.BytesIO()
+        img.save(buf, format="PNG")
+        return buf.getvalue()
+
+    # (d) — same bucket → identical bytes
+    #
+    # Only values within ±0.025 of a bucket centre collapse to the same key.
+    # Slider step=0.01, so a bucket at 0.50 captures ticks 0.48–0.52 (5 ticks).
+    @pytest.mark.parametrize("r1,r2,g,b", [
+        # bucket 0.50: all of 0.48, 0.49, 0.50, 0.51, 0.52 → 0.50
+        (0.50, 0.51, 0.75, 0.25),
+        (0.50, 0.52, 0.75, 0.25),
+        (0.50, 0.49, 0.75, 0.25),
+        (0.50, 0.48, 0.75, 0.25),
+        # bucket 0.20: 0.18–0.22 → 0.20
+        (0.20, 0.21, 0.50, 0.50),
+        (0.20, 0.22, 0.50, 0.50),
+    ])
+    def test_same_bucket_produces_identical_render(self, r1, r2, g, b):
+        bytes1 = self._render_bytes(r1, g, b)
+        bytes2 = self._render_bytes(r2, g, b)
+        assert bytes1 == bytes2, (
+            f"r={r1} and r={r2} should quantise to the same bucket "
+            f"({_quantise(r1, self.STEP)}) but produced different renders"
+        )
+
+    # (e) — different buckets → different bytes
+    @pytest.mark.parametrize("r1,r2,g,b", [
+        (0.50, 0.55, 0.75, 0.25),
+        (0.20, 0.25, 0.50, 0.50),
+        (0.00, 0.05, 1.00, 0.50),
+    ])
+    def test_different_buckets_produce_distinct_renders(self, r1, r2, g, b):
+        bytes1 = self._render_bytes(r1, g, b)
+        bytes2 = self._render_bytes(r2, g, b)
+        assert bytes1 != bytes2, (
+            f"r={r1} (bucket {_quantise(r1, self.STEP)}) and "
+            f"r={r2} (bucket {_quantise(r2, self.STEP)}) "
+            f"produced identical renders; buckets should be visually distinct"
+        )
