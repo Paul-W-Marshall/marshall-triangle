@@ -298,6 +298,19 @@ def custom_css():
         user-select: none;
         z-index: 10;
     }
+    /* Footer links — adapt to light/dark mode */
+    .footer-link {
+        color: #666;
+        text-decoration: none;
+    }
+    .footer-link:hover {
+        text-decoration: underline;
+    }
+    @media (prefers-color-scheme: dark) {
+        .footer-link {
+            color: #aaa;
+        }
+    }
     </style>
     """
 
@@ -1009,13 +1022,13 @@ def main():
     st.markdown("""
     <div style="text-align: center; color: #888; font-size: 0.85em; padding: 1rem 0;">
         <strong>Marshall Triangle</strong><br/>
-        &copy; 2026 <a href="https://linktr.ee/FidelitasLLC" target="_blank" style="color: #888;">Fidelitas LLC</a>. Author: <a href="https://paulwmarshall.com/" target="_blank" style="color: #888;">Paul W. Marshall</a><br/>
+        &copy; 2026 <a href="https://linktr.ee/FidelitasLLC" target="_blank" class="footer-link">Fidelitas LLC</a>. Author: <a href="https://paulwmarshall.com/" target="_blank" class="footer-link">Paul W. Marshall</a><br/>
         <span style="font-size: 0.8em; opacity: 0.85;">
             Related system architecture is disclosed in U.S. Utility Patent Application No. 19/734,975, claiming priority to U.S. Provisional Application No. 63/841,753.
         </span><br/>
-        <a href="https://doi.org/10.5281/zenodo.20696528" target="_blank" style="color: #888;">Preprint</a> |
-        <a href="https://marshalltriangle.com" target="_blank" style="color: #888;">Documentation</a> |
-        <a href="https://github.com/Paul-W-Marshall/marshall-triangle" target="_blank" style="color: #888;">GitHub Repository</a><br/>
+        <a href="https://doi.org/10.5281/zenodo.20696528" target="_blank" class="footer-link">Preprint</a> |
+        <a href="https://marshalltriangle.com" target="_blank" class="footer-link">Documentation</a> |
+        <a href="https://github.com/Paul-W-Marshall/marshall-triangle" target="_blank" class="footer-link">GitHub Repository</a><br/>
         <span style="font-size: 0.8em;">
             Code: MIT | Figures: CC BY-NC 4.0 | Preprint: CC BY 4.0 | Conceptual framework: governed by Fidelitas LLC IP portfolio
         </span>
